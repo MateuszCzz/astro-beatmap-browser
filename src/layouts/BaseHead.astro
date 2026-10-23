@@ -2,20 +2,24 @@
 import { SiteConfig as sc } from "../configs/SiteConfig";
 
 interface Props {
-  title?: string;
-  description?: string;
-  image?: string;
-  noindex?: boolean;
+    title?: string;
+    description?: string;
+    image?: string;
+    noindex?: boolean;
+    jsonLd?: Record<string, unknown>;
 }
 
 const {
-  title,
-  description = sc.description,
-  image = sc.ogImage,
-  noindex = false,
+    title,
+    description = sc.description,
+    image = sc.ogImage,
+    noindex = false,
+    jsonLd,
 } = Astro.props;
 
-const fullTitle = title ? sc.titleTemplate.replace("%s", title) : sc.defaultTitle;
+const fullTitle = title
+    ? sc.titleTemplate.replace("%s", title)
+    : sc.defaultTitle;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const blockIndexing = noindex || import.meta.env.PUBLIC_NOINDEX === "true";
@@ -39,3 +43,16 @@ const blockIndexing = noindex || import.meta.env.PUBLIC_NOINDEX === "true";
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
 <meta name="twitter:card" content={sc.twitterCard} />
+<meta property="og:image:alt" content={sc.name} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+{
+    jsonLd && (
+        <script
+            is:inline
+            type="application/ld+json"
+            set:html={JSON.stringify(jsonLd)}
+        />
+    )
+}
