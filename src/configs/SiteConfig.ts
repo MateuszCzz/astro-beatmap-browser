@@ -9,6 +9,7 @@ export const SiteConfig = {
     // Navigation
     nav: [
         { href: "/", label: "Home" },
+        { href: "/faq", label: "FAQ" },
         // add extra links here
     ],
 

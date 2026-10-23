@@ -1,0 +1,79 @@
+---
+interface Props {
+    question: string;
+}
+
+const { question } = Astro.props;
+---
+
+<details class="faq-item">
+    <summary>
+        <span>{question}</span>
+        <svg
+            class="faq-icon"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+        >
+            <path d="M5 8l5 5 5-5"></path>
+        </svg>
+    </summary>
+    <div class="faq-answer">
+        <slot />
+    </div>
+</details>
+
+<style>
+    .faq-item {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+    }
+
+    summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-md);
+        padding: var(--space-md) var(--space-lg);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none; /* hides default marker (Firefox/Chrome) */
+    }
+
+    summary::-webkit-details-marker {
+        display: none; /* hides default marker (Safari) */
+    }
+
+    summary:hover {
+        color: var(--color-accent);
+    }
+
+    .faq-icon {
+        flex-shrink: 0;
+        transition: transform var(--duration) ease;
+    }
+
+    .faq-item[open] .faq-icon {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0 var(--space-lg) var(--space-md);
+    }
+
+    .faq-answer :global(p) {
+        margin: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .faq-icon {
+            transition: none;
+        }
+    }
+</style>
