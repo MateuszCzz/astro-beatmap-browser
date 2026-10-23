@@ -48,8 +48,12 @@ const faqs = [
         question: "Will you add new features to Osu!Feniks?",
         answer: "Osu!Feniks is still in **early development**, so new features and changes are likely to appear over time.",
     },
+    {
+        question: "How often is the Osu!Feniks data updated?",
+        answer: "Roughly **every few months**. Each update is an extensive and slow process, so new maps and recent scores can take a while to show up.\n\nTo see how fresh the data is, check the **last updated marker at the top of the page**.",
+    },
 ];
-
+//TODO:ADD MARKER
 const toHtml = (s: string) =>
     s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br />");
 const toPlain = (s: string) => s.replace(/\*\*(.+?)\*\*/g, "$1");
