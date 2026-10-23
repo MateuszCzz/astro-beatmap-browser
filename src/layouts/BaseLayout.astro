@@ -1,0 +1,123 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = "Short site description." } = Astro.props;
+
+const links = [{ href: "/", label: "Home" }];
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <nav aria-label="Main">
+        <a class="brand" href="/">Site name</a>
+        <ul>
+          {
+            links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  aria-current={path === l.href ? "page" : undefined}
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+    <main>
+        <!-- SLOT FOR CONTENT -->
+        <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  header {
+    border-bottom: 1px solid var(--border);
+  }
+  nav,
+  main {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  ul {
+    display: flex;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+  nav a:hover {
+    color: var(--accent);
+  }
+  nav a[aria-current="page"] {
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+  }
+  .brand {
+    font-weight: 700;
+  }
+</style>
+
+<!-- GLOBAL STYLES FOR CHILDREN -->
+<style is:global>
+  :root {
+    --bg: #fff;
+    --fg: #1a1a1a;
+    --accent: #2563eb;
+    --border: #e5e5e5;
+    --max: 42rem;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111;
+      --fg: #eee;
+      --accent: #60a5fa;
+      --border: #2a2a2a;
+    }
+  }
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font:
+      1rem/1.6 system-ui,
+      sans-serif;
+  }
+  a {
+    color: var(--accent);
+  }
+</style>
