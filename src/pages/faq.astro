@@ -5,50 +5,54 @@ import FaqItem from "../components/FaqItem.astro";
 const faqs = [
     {
         question: "What is Osu!Feniks?",
-        answer: "Osu!Feniks is a community tool for osu! that helps players find the right beatmaps to play. New maps are ranked every day and tens of thousands are already in the ranked section, so finding a good one can be a struggle. Osu!Feniks pre-sorts beatmaps by Farm Score, so the best-performing maps surface easily and you spend less time searching and more time playing.",
+        answer: "Osu!Feniks is a community tool for osu! that helps players find the right beatmaps to play. New maps are ranked every day and tens of thousands are already in the ranked section, so finding a good one can be a struggle.\n\nOsu!Feniks pre-sorts beatmaps by **Farm Score**, so the best-performing maps surface easily and you spend less time searching and more time playing.",
     },
     {
         question: 'What does "farm map" mean in osu!?',
-        answer: "In osu!, a farm map is a beatmap that gives a lot of performance points (pp) for the effort it takes, so players replay it to climb the rankings faster. Finding those maps among tens of thousands of ranked beatmaps is exactly what Osu!Feniks is built for.",
+        answer: "In osu!, a **farm map** is a beatmap that gives a lot of performance points (**pp**) for the effort it takes, so players replay it to climb the rankings faster. Finding those maps among tens of thousands of ranked beatmaps is exactly what Osu!Feniks is built for.",
     },
     {
         question: "What are the four rank tiers in Osu!Feniks?",
-        answer: "Players are grouped into four tiers by global rank. Tier 1 is Mrekk to #1,000, Tier 2 is #1,001 to #10,000, Tier 3 is #10,001 to #100,000, and Tier 4 is #100,001 to #500,000. Each tier has its own map ranking, so you see what works for players near your level.",
+        answer: "Players are grouped into four tiers by global rank:\n**Tier 1:** Mrekk to #1,000\n**Tier 2:** #1,001 to #10,000\n**Tier 3:** #10,001 to #100,000\n**Tier 4:** #100,001 to #500,000\n\nEach tier has its own map ranking, so you see what works for players near your level.",
     },
     {
         question: "How is the Farm Score calculated?",
-        answer: "Farm Score estimates how easy a map is to farm compared to how much pp it gives. It combines several signals: the average pp players gain from the map, how popular the map is, the average position it takes in players' top plays, its difficulty attributes (BPM, CS, AR and drain time), rank date, and how often similar maps appear in players' top plays. Each map is then compared with the other maps in the same tier, and the ones that perform exceptionally well get the highest scores. Farm Score is only comparable within a tier, never between tiers.",
+        answer: "Farm Score estimates **how easy a map is to farm** compared to how much **pp** it gives. It combines several signals:\n• average pp players set on the map\n• how popular the map is\n• its average position in players' top plays\n• difficulty attributes (BPM, CS, AR and drain time)\n• rank date\n• how often similar maps appear in players' top plays\n\nEach map is then compared with the other maps in the same tier, and the ones that perform exceptionally well get the highest scores. **Farm Score is only comparable within a tier, never between tiers.**",
     },
     {
         question: "How reliable is the Farm Score?",
-        answer: "...not that much. The score is built only from positive signals: maps that a group of players successfully farmed. It can't see the hours spent grinding sets that never paid off, or the time spent training skills to set a score. Osu!Feniks tries to account for differences in map popularity, impossible maps that look very profitable, and survivorship bias, but some bias remains. The only way to truly find the most farmable maps would be to lock 500,000 players in a room for a few weeks and have them play every single beatmap. Until then this project is the best available attempt.",
+        answer: "**...not that much.** The score is built only from **positive signals**: maps that a group of players successfully farmed. It can't see the hours spent grinding sets that never paid off, or the time spent training skills to set a score. Osu!Feniks tries to account for differences in map popularity, impossible maps that look very profitable, and survivorship bias, but some bias remains.\n\nThe only way to truly find the most farmable maps would be to lock 500,000 players in a room for a few weeks and have them play every single beatmap. Until then this project is the best available attempt.",
     },
     {
         question: "Where does the Osu!Feniks data come from?",
-        answer: "The data comes from the top 100 scores of players in each tier. Results are grouped by difficulty and mod combination, and groups with too few samples go through noise removal. Coverage varies and is deliberately limited to reduce the load on osu! servers, so if one of your top plays is missing from the list, that is expected behavior rather than a bug.",
+        answer: "The data comes from the top 100 scores of players in each tier. Results are grouped by difficulty and mod combination, and groups with too few samples go through noise removal.\n\nCoverage varies and is deliberately limited to reduce the load on osu! servers, so if one of your top plays is missing from the list, that is expected behavior rather than a bug.",
     },
     {
         question: "Which osu! mods does Osu!Feniks cover?",
-        answer: "Osu!Feniks covers NM (No Mod), DT (Double Time), HR (Hard Rock) and DT+HR. Scores with EZ (Easy) and TD (Touch Device) are filtered out. Scores with HD (Hidden) NC (Nightcore), FL (Flashlight) and CL (Classic) are merged into their counterparts without that mod, so for example HD+NC counts as DT.",
+        answer: "Osu!Feniks covers **NM** (No Mod), **DT** (Double Time), **HR** (Hard Rock) and **DT+HR**.\n\nScores with EZ (Easy) and TD (Touch Device) are filtered out. HD (Hidden), FL (Flashlight) and CL (Classic) are stripped and the score is merged with its counterpart without that mod. For example, HD+NC counts as DT.",
     },
     {
         question: "What do Pass%, Hidden% and FC% mean?",
-        answer: "Pass is the global share of plays that pass the map, regardless of mods or tier. Because of that, a high Pass doesn't mean an average player can clear the map with DT. Hidden is the share of plays set with HD. FC is the share of scores in the selected tier that finished with almost the maximum combo.",
+        answer: "**Pass:** the global share of plays that pass the map, regardless of mods or tier. A high Pass doesn't mean an average player can clear the map with DT.\n**Hidden:** the share of plays set with HD.\n**FC:** the share of scores in the selected tier that finished with almost the maximum combo.",
     },
     {
         question:
             "What do Top-25%, Aim share%, Max pp and Median pp gain mean?",
-        answer: "Top-25 is how often the map appears in a player's top 25 plays. Very popular maps tend to perform worse because more people attempt them and more of those attempts end in a choke, unless given map is so absurdly hard only the best of each tier can clear it. Aim share shows where the map's star rating comes from: a high share means difficulty comes mostly from distance between circles (like Reform Bass Sl*t's slow spaced jumps), while a low share means it comes from density (Rog unlimited's fast, stacked streams). Max pp is the highest pp observed on the map in the selected tier with the selected mods, potentialy modified by HD, FL and CL. Median pp gain is the typical pp a player gains from the map once the score is weighted by its position in their top plays.",
+        answer: "**Top-25:** how often the map appears in a player's top 25 plays. Very popular maps tend to perform worse because more people attempt them and more of those attempts end in a choke, unless a map is so absurdly hard that only the best players of a tier can clear it.\n\n**Aim share:** shows where the map's star rating comes from. A high share means difficulty comes mostly from distance between circles (like Reform Bass Sl*t's slow, spaced jumps), while a low share means it comes from density (like Rog unlimited's fast, stacked streams).\n\n**Max pp:** the highest pp observed on the map in the selected tier with the selected mods, potentially modified by HD, FL and CL.\n\n**Median pp gain:** the typical pp a player gains from the map once the score is weighted by its position in their top plays.",
     },
     {
         question: "Why do I need to log in with osu!?",
-        answer: "Blame evil robots. A top slice of the data for each tier is available without logging in. To dive deeper, you need to log in with your osu! account. Logging in also lets Osu!Feniks show your own scores on maps. If something still doesn't work after you log in, again robots (occasionally me, but mostly the robots).",
+        answer: "A top slice of the data for each tier is available without logging in. To dive deeper, **log in with your osu! account**. Logging in also lets Osu!Feniks show your own scores on maps.\n\nIf something still doesn't work after you log in, blame the evil scraping robots (occasionally me, but mostly the robots).",
     },
     {
         question: "Will you add new features to Osu!Feniks?",
-        answer: "Osu!Feniks is still in early development, so new features and changes are likely to appear over time.",
+        answer: "Osu!Feniks is still in **early development**, so new features and changes are likely to appear over time.",
     },
 ];
+
+const toHtml = (s: string) =>
+    s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br />");
+const toPlain = (s: string) => s.replace(/\*\*(.+?)\*\*/g, "$1");
 
 const faqSchema = {
     "@context": "https://schema.org",
@@ -58,7 +62,7 @@ const faqSchema = {
         name: faq.question,
         acceptedAnswer: {
             "@type": "Answer",
-            text: faq.answer,
+            text: toPlain(faq.answer),
         },
     })),
 };
@@ -67,35 +71,34 @@ const faqSchema = {
 <BaseLayout
     title="Osu!Feniks FAQ: Farm Score, Tiers and Beatmap Data"
     description="Answers about Osu!Feniks: how Farm Score is calculated, how the four rank tiers work, where osu! beatmap data comes from, and what the map stats mean."
+    jsonLd={faqSchema}
 >
-    <BaseLayout title="..." description="..." jsonLd={faqSchema}>
-        <h1>Osu!Feniks FAQ</h1>
-        <p class="intro">
-            Osu!Feniks helps osu! players find farm maps by ranking beatmaps
-            with a Farm Score for each rank tier. Here is how it works.
-        </p>
+    <h1>Osu!Feniks FAQ</h1>
+    <p class="intro">
+        Osu!Feniks helps osu! players find farm maps by ranking beatmaps with a
+        <strong>Farm Score</strong> for each rank tier. Here is how it works.
+    </p>
 
-        <div class="faq-list">
-            {
-                faqs.map((faq) => (
-                    <FaqItem question={faq.question}>
-                        <p>{faq.answer}</p>
-                    </FaqItem>
-                ))
-            }
-        </div>
-    </BaseLayout>
-
-    <style>
-        .intro {
-            max-width: var(--width-content);
-            margin-bottom: var(--space-md);
+    <div class="faq-list">
+        {
+            faqs.map((faq) => (
+                <FaqItem question={faq.question}>
+                    <p set:html={toHtml(faq.answer)} />
+                </FaqItem>
+            ))
         }
+    </div>
+</BaseLayout>
 
-        .faq-list {
-            display: grid;
-            gap: var(--space-sm);
-            max-width: var(--width-content);
-        }
-    </style></BaseLayout
->
+<style>
+    .intro {
+        max-width: var(--width-content);
+        margin-bottom: var(--space-md);
+    }
+
+    .faq-list {
+        display: grid;
+        gap: var(--space-sm);
+        max-width: var(--width-content);
+    }
+</style>
