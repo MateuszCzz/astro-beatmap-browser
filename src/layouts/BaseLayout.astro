@@ -4,8 +4,8 @@ import Navbar from "./Navbar.astro";
 import "../styles/global.css";
 
 interface Props {
-  title: string;
-  description?: string;
+    title: string;
+    description?: string;
 }
 
 const { title, description } = Astro.props;
@@ -13,17 +13,17 @@ const { title, description } = Astro.props;
 
 <!doctype html>
 <html lang="en">
-  <head>
+    <head>
         <BaseHead title={title} description={description} />
         <slot name="head" />
-  </head>
-  <body>
+    </head>
+    <body>
         <Navbar />
         <main>
             <!-- SLOT FOR CONTENT -->
-        <slot />
-    </main>
-  </body>
+            <slot />
+        </main>
+    </body>
 </html>
 
 <style>
