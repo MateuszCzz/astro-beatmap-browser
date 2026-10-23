@@ -1,6 +1,7 @@
 ---
 import BaseHead from "./BaseHead.astro";
 import Navbar from "./Navbar.astro";
+import "../styles/global.css";
 
 interface Props {
   title: string;
@@ -26,76 +27,9 @@ const { title, description } = Astro.props;
 </html>
 
 <style>
-  header {
-    border-bottom: 1px solid var(--border);
-  }
-  nav,
-  main {
-    max-width: var(--max);
-    margin: 0 auto;
-    padding: 1rem;
-  }
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-  ul {
-    display: flex;
-    gap: 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  nav a {
-    color: var(--fg);
-    text-decoration: none;
-  }
-  nav a:hover {
-    color: var(--accent);
-  }
-  nav a[aria-current="page"] {
-    font-weight: 600;
-    border-bottom: 2px solid var(--accent);
-  }
-  .brand {
-    font-weight: 700;
-  }
-</style>
-
-<!-- GLOBAL STYLES FOR CHILDREN -->
-<style is:global>
-  :root {
-    --bg: #fff;
-    --fg: #1a1a1a;
-    --accent: #2563eb;
-    --border: #e5e5e5;
-    --max: 42rem;
-    color-scheme: light dark;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #111;
-      --fg: #eee;
-      --accent: #60a5fa;
-      --border: #2a2a2a;
+    main {
+        max-width: var(--width-content);
+        margin-inline: auto;
+        padding: var(--space-lg) var(--space-md);
     }
-  }
-  *,
-  ::before,
-  ::after {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font:
-      1rem/1.6 system-ui,
-      sans-serif;
-  }
-  a {
-    color: var(--accent);
-  }
 </style>
