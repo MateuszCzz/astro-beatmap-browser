@@ -1,4 +1,4 @@
-const name = "Osu Feniks";
+const name = "Osu!Feniks";
 
 export const SiteConfig = {
     // Identity
