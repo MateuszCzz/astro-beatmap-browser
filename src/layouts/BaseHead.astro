@@ -1,0 +1,41 @@
+---
+import { SiteConfig as sc } from "../configs/SiteConfig";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = sc.description,
+  image = sc.ogImage,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? sc.titleTemplate.replace("%s", title) : sc.defaultTitle;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+const blockIndexing = noindex || import.meta.env.PUBLIC_NOINDEX === "true";
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+{blockIndexing && <meta name="robots" content="noindex, nofollow" />}
+<link rel="canonical" href={canonical} />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+
+<meta property="og:site_name" content={sc.name} />
+<meta property="og:locale" content={sc.locale} />
+<meta property="og:type" content="website" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content={sc.twitterCard} />
