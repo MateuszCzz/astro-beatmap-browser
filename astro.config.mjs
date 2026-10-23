@@ -7,6 +7,9 @@ import vue from '@astrojs/vue';
 
 // https://astro.build/config
 export default defineConfig({
+  trailingSlash: "never",
+  build: { format: "file" },
   adapter: cloudflare(),
-  integrations: [vue()]
+  integrations: [vue()],
+  site: "https://osufeniks.com",
 });
