@@ -1,7 +1,9 @@
 ---
-import BaseLayout  from "../layouts/BaseLayout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BeatmapDashboard from "../components/BeatmapDashboard.vue";
 ---
 
 <BaseLayout title="Home" description="The main page of the app.">
-		<h1>Astro</h1>
+    <h1>Astro</h1>
+    <BeatmapDashboard client:only="vue" />
 </BaseLayout>
