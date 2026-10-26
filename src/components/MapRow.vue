@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { srColour, srFormat } from "../composables/rowDisplay";
 import {
     GENRES,
     LANGUAGES,
     MODS,
     type BeatmapParsed,
 } from "../composables/beatmap";
+
 const props = defineProps<{
     row: BeatmapParsed;
     playing?: boolean;
@@ -23,6 +25,7 @@ async function copyId() {
         // clipboard blocked
     }
 }
+
 </script>
 
 <template>
@@ -75,7 +78,16 @@ async function copyId() {
 
             <!-- diff markers -->
             <div>
-                <span>{{ row.sr / 100 }}★</span>
+                <!-- sr pill -->
+                <div
+                    class="sr-pill"
+                    :style="{
+                        '--sr-bg': srColour(row.sr),
+                        '--sr-fg': row.sr >= 650 ? '#FFD700' : '#000',
+                    }"
+                >
+                    <span>{{ srFormat(row.sr) }}</span>
+                </div>
                 <span>{{ row.bpm }}bpm</span>
                 <span>AR{{ row.ar / 100 }}</span>
                 <span>OD{{ row.od / 100 }}</span>
@@ -139,5 +151,22 @@ span {
     border-bottom: 2px solid var(--line);
     padding: 0.75em;
     list-style: none;
+}
+
+.sr-pill {
+    display: inline-block;
+    padding: 0.1em 0.45em;
+    border-radius: 999px;
+
+    background: var(--sr-bg);
+    color: var(--sr-fg);
+
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+
+    outline: 1px solid currentColor;
+    outline-offset: -1px;
+    box-shadow: inset 0 0 0 1px currentColor;
 }
 </style>
