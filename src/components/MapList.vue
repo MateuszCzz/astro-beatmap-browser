@@ -15,9 +15,10 @@ const player = ref<InstanceType<typeof AudioPlayer> | null>(null);
     <div class="map-list-wrap">
         <ol class="map-list">
             <MapRow
-                v-for="r in rows"
+                v-for="(r, i) in rows"
                 :key="r.key"
                 :row="r"
+                :eager="i < 6"
                 :playing="
                     !!player?.isPlaying && player.playingId === r.mapset_id
                 "

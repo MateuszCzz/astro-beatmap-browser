@@ -8,6 +8,7 @@ import {
 const props = defineProps<{
     row: BeatmapParsed;
     playing?: boolean;
+    eager?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -32,7 +33,7 @@ async function copyId() {
                 class="map-row__cover"
                 :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card.jpg`"
                 alt=""
-                loading="lazy"
+                :loading="eager ? 'eager' : 'lazy'"
             />
         </div>
 
