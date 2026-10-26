@@ -1,17 +1,19 @@
 <script setup lang="ts">
+import MapRow from "./MapRow.vue";
+import type { BeatmapParsed } from "../composables/beatmap";
 
-import MapRow from './MapRow.vue';
-
+const props = defineProps<{
+    rows: readonly BeatmapParsed[];
+}>();
 </script>
 
 <template>
     <ol class="map-list">
-        <!-- each result row v-for="r in rows" -->
-        <MapRow " />
+        <MapRow v-for="r in rows" :key="r.key" :row="r" />
 
         <!-- info rows at bottom -->
         <li ref="end" class="map-list-end">
-            <!-- quering db -->
+            <!-- loading -->
 
             <!-- failed results -->
 
