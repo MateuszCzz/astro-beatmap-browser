@@ -140,11 +140,8 @@ async function copyId() {
             <!-- action buttons -->
             <div>
                 <button type="button" @click="copyId">Copy diff id</button>
-                <a
-                    :href="`osu://dl/${row.mapset_id}`"
-                    target="_blank"
-                    rel="noopener"
-                    >In-Game Download</a
+                <a :href="`osu://b/${row.difficulty_id}`" rel="noopener"
+                    >In-Game Open</a
                 >
             </div>
 
