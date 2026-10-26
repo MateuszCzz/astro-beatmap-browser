@@ -7,6 +7,11 @@ import {
 } from "../composables/beatmap";
 const props = defineProps<{
     row: BeatmapParsed;
+    playing?: boolean;
+}>();
+
+const emit = defineEmits<{
+    preview: [mapsetId: number];
 }>();
 
 // on click save id to clipboard
@@ -114,12 +119,13 @@ async function copyId() {
             </div>
 
             <!-- audio preview -->
-            <audio controls preload="none">
-                <source
-                    :src="`https://b.ppy.sh/preview/${row.mapset_id}.mp3`"
-                    type="audio/mpeg"
-                />
-            </audio>
+            <button
+                type="button"
+                :aria-pressed="playing"
+                @click="emit('preview', row.mapset_id)"
+            >
+                {{ playing ? "Pause" : "Preview" }}
+            </button>
         </div>
     </li>
 </template>
