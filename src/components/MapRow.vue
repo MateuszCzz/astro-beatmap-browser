@@ -4,6 +4,9 @@ import {
     srFormat,
     scoreVars,
     bigIntFormat,
+    lengthFormat,
+    ratioFormat,
+    decimalFormat,
 } from "../composables/rowDisplay";
 import {
     GENRES,
@@ -30,7 +33,6 @@ async function copyId() {
         // clipboard blocked
     }
 }
-
 </script>
 
 <template>
@@ -94,19 +96,19 @@ async function copyId() {
                     <span>{{ srFormat(row.sr) }}</span>
                 </div>
                 <span>{{ row.bpm }}bpm</span>
-                <span>AR{{ row.ar / 100 }}</span>
-                <span>OD{{ row.od / 100 }}</span>
-                <span>CS{{ row.cs / 100 }}</span>
-                <span>{{ row.length }}</span>
+                <span>AR{{ decimalFormat(row.ar) }}</span>
+                <span>OD{{ decimalFormat(row.od) }}</span>
+                <span>CS{{ decimalFormat(row.cs) }}</span>
+                <span>{{ lengthFormat(row.length) }}</span>
             </div>
 
             <!-- ratios -->
             <div>
-                <span>pass {{ row.pass_ratio / 100 }}%</span>
-                <span>HD {{ row.hidden_ratio / 100 }}%</span>
-                <span>FC {{ row.fc_ratio / 100 }}%</span>
-                <span>top25 {{ row.profile_top_25_ratio / 100 }}%</span>
-                <span>aim/speed {{ row.aim_speed_ratio / 100 }}%</span>
+                <span>pass {{ ratioFormat(row.pass_ratio) }}</span>
+                <span>HD {{ ratioFormat(row.hidden_ratio) }}</span>
+                <span>FC {{ ratioFormat(row.fc_ratio) }}</span>
+                <span>top25 {{ ratioFormat(row.profile_top_25_ratio) }}</span>
+                <span>aim/speed {{ ratioFormat(row.aim_speed_ratio) }} </span>
             </div>
 
             <!-- tags -->
@@ -116,8 +118,18 @@ async function copyId() {
 
             <!-- pp markers -->
             <div>
-                <span>max {{ row.max_pp }}pp</span>
-                <span>median gain {{ row.median_pp_gain }}pp</span>
+                <span
+                    >max
+                    <span style="font-weight: 700"
+                        >{{ bigIntFormat(row.max_pp) }}pp</span
+                    ></span
+                >
+                <span
+                    >median gain
+                    <span style="font-weight: 700"
+                        >+{{ bigIntFormat(row.median_pp_gain) }}pp</span
+                    ></span
+                >
             </div>
 
             <!-- score -->
