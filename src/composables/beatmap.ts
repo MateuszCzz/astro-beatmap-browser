@@ -57,7 +57,6 @@ export type BeatmapRaw = {
     language_id: number;
     pass_ratio: number;
     hidden_ratio: number;
-    fc_ratio: number;
     profile_top_25_ratio: number;
     aim_speed_ratio: number;
     max_pp: number;

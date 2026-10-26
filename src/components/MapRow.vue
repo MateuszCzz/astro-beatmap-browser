@@ -106,7 +106,6 @@ async function copyId() {
             <div>
                 <span>pass {{ ratioFormat(row.pass_ratio) }}</span>
                 <span>HD {{ ratioFormat(row.hidden_ratio) }}</span>
-                <span>FC {{ ratioFormat(row.fc_ratio) }}</span>
                 <span>top25 {{ ratioFormat(row.profile_top_25_ratio) }}</span>
                 <span>aim/speed {{ ratioFormat(row.aim_speed_ratio) }} </span>
             </div>
