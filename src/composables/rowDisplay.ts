@@ -29,3 +29,46 @@ export function srColour(sr100: number): string {
 }
 
 export const srFormat = (sr100: number) => `★ ${sr100 / 100}`;
+
+// score color + glow config
+const SCORE = {
+    colorMin: 100, // color ramp start
+    colorMax: 800, // color ramp end
+    glowMin: 750, // glow ramp start
+    glowMax: 2000, // glow ramp end
+    glowPeak: 1.5, // max glow value
+} as const;
+
+// score to rgb color
+const score_A = [0x73, 0x32, 0x4b] as const;
+const score_B = [0xb9, 0x4c, 0x7b] as const;
+const score_C = [0xff, 0x66, 0xaa] as const;
+
+export type ScoreVars = { "--sc": string; "--g": string };
+
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+
+function compute(v: number): ScoreVars {
+    const t = clamp01((v - SCORE.colorMin) / (SCORE.colorMax - SCORE.colorMin));
+    const tg = clamp01((v - SCORE.glowMin) / (SCORE.glowMax - SCORE.glowMin));
+
+    const [from, to, tt] = t < 0.5
+        ? [score_A, score_B, t * 2]
+        : [score_B, score_C, (t - 0.5) * 2];
+    const mix = (k: number) => Math.round(from[k] + (to[k] - from[k]) * tt);
+
+    return {
+        "--sc": `rgb(${mix(0)},${mix(1)},${mix(2)})`,
+        "--g": (tg * SCORE.glowPeak).toFixed(3),
+    };
+}
+
+const scoreCache: ScoreVars[] = [];
+
+export function scoreVars(v: number): ScoreVars {
+    const { colorMin: lo, glowMax: hi } = SCORE;
+    const i = v <= lo ? 0 : v >= hi ? hi - lo : (v - lo + 0.5) | 0;
+    return (scoreCache[i] ??= compute(i + lo));
+}
+
+export const bigIntFormat = (score: number) => score.toLocaleString("en-US");

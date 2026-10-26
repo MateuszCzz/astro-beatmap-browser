@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { srColour, srFormat } from "../composables/rowDisplay";
+import {
+    srColour,
+    srFormat,
+    scoreVars,
+    bigIntFormat,
+} from "../composables/rowDisplay";
 import {
     GENRES,
     LANGUAGES,
@@ -116,8 +121,8 @@ async function copyId() {
             </div>
 
             <!-- score -->
-            <div>
-                <span>score {{ row.score }}</span>
+            <div class="score" :style="scoreVars(row.score)">
+                score {{ bigIntFormat(row.score) }}
             </div>
 
             <!-- action buttons -->
@@ -168,5 +173,12 @@ span {
     outline: 1px solid currentColor;
     outline-offset: -1px;
     box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.score {
+    color: var(--sc);
+    text-shadow: 0 0 calc(var(--g) * 10px) var(--sc);
+    font-weight: 600;
+    font-size: 2em;
 }
 </style>
