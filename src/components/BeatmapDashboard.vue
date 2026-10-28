@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, computed } from "vue";
+import { onMounted, ref, shallowRef } from "vue";
 import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
-import { toParse, type BeatmapRaw } from "../composables/beatmap";
+import {
+    toParse,
+    type BeatmapParsed,
+    type BeatmapRaw,
+} from "../composables/beatmap";
 
 const loading = ref(true);
 
@@ -106,9 +110,8 @@ const SAMPLE: BeatmapRaw[] = [
     },
 ];
 
-const loadedJson = shallowRef<BeatmapRaw[]>(SAMPLE);
-
-const beatmapRows = computed(() => loadedJson.value.map(toParse));
+const beatmapRows = shallowRef<BeatmapParsed[]>([]);
+beatmapRows.value = [...beatmapRows.value, ...SAMPLE.map(toParse)];
 
 onMounted(async () => {
     try {
