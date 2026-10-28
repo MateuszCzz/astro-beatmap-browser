@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-    srColour,
+    srColor,
     srFormat,
     scoreVars,
     bigIntFormat,
@@ -89,7 +89,7 @@ async function copyId() {
                 <div
                     class="sr-pill"
                     :style="{
-                        '--sr-bg': srColour(row.sr),
+                        '--sr-bg': srColor(row.sr),
                         '--sr-fg': row.sr >= 650 ? '#FFD700' : '#000',
                     }"
                 >
