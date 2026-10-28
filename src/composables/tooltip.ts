@@ -40,4 +40,12 @@ export const TIPS = {
 } as const;
 
 export type TipKey = keyof typeof TIPS;
-export const tip = (k: TipKey) => ({ "data-tip": TIPS[k] });
+
+// prebuilt once at load
+// one frozen object per tip
+// later return the same object every time
+const ATTRS = Object.fromEntries(
+    Object.entries(TIPS).map(([k, v]) => [k, Object.freeze({ "data-tip": v })]),
+) as Record<TipKey, Readonly<{ "data-tip": string }>>;
+
+export const tip = (k: TipKey) => ATTRS[k];
