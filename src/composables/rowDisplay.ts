@@ -73,5 +73,5 @@ export function scoreVars(v: number): ScoreVars {
 
 export const bigIntFormat = (score: number) => score.toLocaleString("en-US");
 export const lengthFormat = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;// sec to min:sec helper
-export const ratioFormat = (ratio: number) => `${ratio / 100}%`;
+export const ratioFormat = (ratio: number) => `${Math.round(ratio / 10) / 10}%`;
 export const decimalFormat = (dec: number) => `${dec / 100}`;

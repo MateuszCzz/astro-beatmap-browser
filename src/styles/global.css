@@ -1,12 +1,21 @@
 :root {
     color-scheme: light dark;
 
+    /* rings tokens  */
+    --gray: #a79bc0;
+    --pink: #ff66aa;
+    --blue: #8fd0ff;
+    --green: #7be0b0;
+    --gold: #ffd966;
+    --red: #c2410c;
+    --black: #17131f;
+
     /* dark (default) */
-    --color-bg: #17131f;
+    --color-bg: var(--black);
     --color-surface: #231d30;
     --color-text: #f3effa;
     --color-border: #3a3250;
-    --color-accent: #ffb36b;
+    --color-accent: var(--gold);
 }
 
 @media (prefers-color-scheme: light) {
@@ -14,9 +23,9 @@
         /* light */
         --color-bg: #faf8fc;
         --color-surface: #ffffff;
-        --color-text: #1f1a2b;
+        --color-text: var(--black);
         --color-border: #e7e1f0;
-        --color-accent: #c2410c;
+        --color-accent: var(--red);
     }
 }
 
@@ -34,7 +43,7 @@
     --space-md: 1rem;
     --space-lg: 1.5rem;
     --radius-md: 0.5rem;
-    --width-content: 60rem;
+    --width-content: 100rem;
     --width-header: 120rem;
     --duration: 150ms;
 }

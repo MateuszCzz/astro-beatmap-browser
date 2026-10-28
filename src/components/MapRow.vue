@@ -16,6 +16,7 @@ import {
 } from "../composables/beatmap";
 
 import { tip } from "../composables/tooltip";
+import RatioRing from "./RatioRing.vue";
 
 const props = defineProps<{
     row: BeatmapParsed;
@@ -103,7 +104,7 @@ async function copyId() {
                     class="sr-pill"
                     :style="{
                         '--sr-bg': srColor(row.sr),
-                        '--sr-fg': row.sr >= 650 ? '#FFD700' : '#000',
+                        '--sr-fg': row.sr >= 650 ? 'var(--gold)' : '#000',
                     }"
                 >
                     <span>{{ srFormat(row.sr) }}</span>
@@ -118,19 +119,31 @@ async function copyId() {
             </div>
 
             <!-- ratios -->
-            <div>
-                <span v-bind="tip('pass')"
-                    >pass {{ ratioFormat(row.pass_ratio) }}</span
-                >
-                <span v-bind="tip('hd')"
-                    >HD {{ ratioFormat(row.hidden_ratio) }}</span
-                >
-                <span v-bind="tip('top25')"
-                    >top25 {{ ratioFormat(row.profile_top_25_ratio) }}</span
-                >
-                <span v-bind="tip('aimbias')"
-                    >aim/speed {{ ratioFormat(row.aim_speed_ratio) }}
-                </span>
+            <div style="display: flex; flex-wrap: wrap">
+                <RatioRing
+                    label="TOP25 RATE"
+                    :value="row.profile_top_25_ratio"
+                    v-bind="tip('top25')"
+                    style="--ring-color: var(--pink)"
+                />
+                <RatioRing
+                    label="PASS RATE"
+                    :value="row.pass_ratio"
+                    v-bind="tip('pass')"
+                    style="--ring-color: var(--green)"
+                />
+                <RatioRing
+                    label="AIM BIAS"
+                    :value="row.aim_speed_ratio"
+                    v-bind="tip('aimbias')"
+                    style="--ring-color: var(--blue)"
+                />
+                <RatioRing
+                    label="HD USAGE"
+                    :value="row.hidden_ratio"
+                    v-bind="tip('hd')"
+                    style="--ring-color: var(--gold)"
+                />
             </div>
 
             <!-- tags -->
@@ -200,7 +213,8 @@ span {
 
 .sr-pill {
     display: inline-block;
-    padding: 0.1em 0.45em;
+    text-box: trim-both cap alphabetic;
+    padding: 0.32em 0.45em;
     border-radius: 999px;
 
     background: var(--sr-bg);
@@ -210,7 +224,7 @@ span {
     line-height: 1.3;
     white-space: nowrap;
 
-    outline: 1px solid currentColor;
+    outline: 1.2px solid currentColor;
     outline-offset: -1px;
     box-shadow: inset 0 0 0 1px currentColor;
 }
