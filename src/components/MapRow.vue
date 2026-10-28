@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed, inject, type Ref } from "vue";
 import {
     srColor,
     srFormat,
     scoreVars,
     bigIntFormat,
     lengthFormat,
-    ratioFormat,
     decimalFormat,
 } from "../composables/rowDisplay";
 import {
@@ -20,13 +20,15 @@ import RatioRing from "./RatioRing.vue";
 
 const props = defineProps<{
     row: BeatmapParsed;
-    playing?: boolean;
     eager?: boolean;
 }>();
 
 const emit = defineEmits<{
     preview: [mapsetId: number];
 }>();
+
+const playingId = inject<Ref<number | null>>("playingId")!;
+const playing = computed(() => playingId.value === props.row.mapset_id);
 
 // on click save id to clipboard
 async function copyId() {

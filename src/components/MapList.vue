@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, provide, ref } from "vue";
 import MapRow from "./MapRow.vue";
 import type { BeatmapParsed } from "../composables/beatmap";
 import AudioPlayer from "./AudioPlayer.vue";
@@ -10,6 +10,14 @@ const props = defineProps<{
 }>();
 
 const player = ref<InstanceType<typeof AudioPlayer> | null>(null);
+const playingId = computed(() =>
+    player.value?.isPlaying ? player.value.playingId : null,
+);
+provide("playingId", playingId);
+
+function onPreview(id: number) {
+    player.value?.toggle(id);
+}
 </script>
 
 <template>
@@ -20,10 +28,7 @@ const player = ref<InstanceType<typeof AudioPlayer> | null>(null);
                 :key="r.key"
                 :row="r"
                 :eager="i < 6"
-                :playing="
-                    !!player?.isPlaying && player.playingId === r.mapset_id
-                "
-                @preview="(id) => player?.toggle(id)"
+                @preview="onPreview"
             />
 
             <!-- info rows at bottom -->
