@@ -1,9 +1,12 @@
-export const MODS: Record<number, string> = {
+export const MODS = {
     1: "NM",
     2: "DT",
     3: "HR",
-    4: "DTHR"
-} as const;
+    4: "DTHR",
+} as const satisfies Record<number, string>;
+export type ModId = keyof typeof MODS;
+
+export type Tier = 1 | 2 | 3 | 4;
 
 export const GENRES: Record<number, string> = {
     2: "Video Game",
@@ -39,8 +42,8 @@ export const LANGUAGES: Record<number, string> = {
 // raw json
 export type BeatmapRaw = {
     difficulty_id: number;
-    mods: number;
-    user_tier: number;
+    mods: ModId;
+    user_tier: Tier;
     mapset_id: number;
     mapper_id: number;
     artist: string;

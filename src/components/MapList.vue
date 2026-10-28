@@ -3,6 +3,7 @@ import { ref } from "vue";
 import MapRow from "./MapRow.vue";
 import type { BeatmapParsed } from "../composables/beatmap";
 import AudioPlayer from "./AudioPlayer.vue";
+import TooltipBox from "./TooltipBox.vue";
 
 const props = defineProps<{
     rows: readonly BeatmapParsed[];
@@ -40,5 +41,6 @@ const player = ref<InstanceType<typeof AudioPlayer> | null>(null);
         </ol>
 
         <AudioPlayer ref="player" />
+        <TooltipBox />
     </div>
 </template>

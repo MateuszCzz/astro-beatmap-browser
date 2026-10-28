@@ -15,6 +15,8 @@ import {
     type BeatmapParsed,
 } from "../composables/beatmap";
 
+import { tip } from "../composables/tooltip";
+
 const props = defineProps<{
     row: BeatmapParsed;
     playing?: boolean;
@@ -59,8 +61,12 @@ async function copyId() {
                         {{ row.difficulty_id }}
                     </a>
                 </span>
-                <span>T{{ row.user_tier }}</span>
-                <span>{{ MODS[row.mods] ?? row.mods }}</span>
+                <span v-bind="tip(`T${row.user_tier}`)"
+                    >T{{ row.user_tier }}</span
+                >
+                <span v-bind="tip(MODS[row.mods])">{{
+                    MODS[row.mods] ?? row.mods
+                }}</span>
                 <strong>{{ row.artist }} – {{ row.title }}</strong>
                 <span>[{{ row.diff }}]</span>
                 <small>
@@ -77,9 +83,15 @@ async function copyId() {
             <!-- rest info -->
             <div>
                 <small>
-                    {{ GENRES[row.genre_id] ?? row.genre_id }} ·
-                    {{ LANGUAGES[row.language_id] ?? row.language_id }} ·
-                    {{ row.year }}
+                    <span v-bind="tip('genre')">{{
+                        GENRES[row.genre_id] ?? row.genre_id
+                    }}</span>
+                    ·
+                    <span v-bind="tip('lang')">{{
+                        LANGUAGES[row.language_id] ?? row.language_id
+                    }}</span>
+                    ·
+                    <span v-bind="tip('year')">{{ row.year }}</span>
                 </small>
             </div>
 
@@ -87,6 +99,7 @@ async function copyId() {
             <div>
                 <!-- sr pill -->
                 <div
+                    v-bind="tip('sr')"
                     class="sr-pill"
                     :style="{
                         '--sr-bg': srColor(row.sr),
@@ -95,19 +108,29 @@ async function copyId() {
                 >
                     <span>{{ srFormat(row.sr) }}</span>
                 </div>
-                <span>{{ row.bpm }}bpm</span>
-                <span>AR{{ decimalFormat(row.ar) }}</span>
-                <span>OD{{ decimalFormat(row.od) }}</span>
-                <span>CS{{ decimalFormat(row.cs) }}</span>
-                <span>{{ lengthFormat(row.length) }}</span>
+                <span v-bind="tip('bpm')">{{ row.bpm }} bpm</span>
+                <span v-bind="tip('ar')">AR{{ decimalFormat(row.ar) }}</span>
+                <span v-bind="tip('od')">OD{{ decimalFormat(row.od) }}</span>
+                <span v-bind="tip('cs')">CS{{ decimalFormat(row.cs) }}</span>
+                <span v-bind="tip('length')">{{
+                    lengthFormat(row.length)
+                }}</span>
             </div>
 
             <!-- ratios -->
             <div>
-                <span>pass {{ ratioFormat(row.pass_ratio) }}</span>
-                <span>HD {{ ratioFormat(row.hidden_ratio) }}</span>
-                <span>top25 {{ ratioFormat(row.profile_top_25_ratio) }}</span>
-                <span>aim/speed {{ ratioFormat(row.aim_speed_ratio) }} </span>
+                <span v-bind="tip('pass')"
+                    >pass {{ ratioFormat(row.pass_ratio) }}</span
+                >
+                <span v-bind="tip('hd')"
+                    >HD {{ ratioFormat(row.hidden_ratio) }}</span
+                >
+                <span v-bind="tip('top25')"
+                    >top25 {{ ratioFormat(row.profile_top_25_ratio) }}</span
+                >
+                <span v-bind="tip('aimbias')"
+                    >aim/speed {{ ratioFormat(row.aim_speed_ratio) }}
+                </span>
             </div>
 
             <!-- tags -->
@@ -117,13 +140,13 @@ async function copyId() {
 
             <!-- pp markers -->
             <div>
-                <span
+                <span v-bind="tip('max')"
                     >max
                     <span style="font-weight: 700"
                         >{{ bigIntFormat(row.max_pp) }}pp</span
                     ></span
                 >
-                <span
+                <span v-bind="tip('avg')"
                     >median gain
                     <span style="font-weight: 700"
                         >+{{ bigIntFormat(row.median_pp_gain) }}pp</span
@@ -132,14 +155,23 @@ async function copyId() {
             </div>
 
             <!-- score -->
-            <div class="score" :style="scoreVars(row.score)">
+            <div
+                v-bind="tip('score')"
+                class="score"
+                :style="scoreVars(row.score)"
+            >
                 score {{ bigIntFormat(row.score) }}
             </div>
 
             <!-- action buttons -->
             <div>
-                <button type="button" @click="copyId">Copy diff id</button>
-                <a :href="`osu://b/${row.difficulty_id}`" rel="noopener"
+                <button v-bind="tip('copy')" type="button" @click="copyId">
+                    Copy diff id
+                </button>
+                <a
+                    v-bind="tip('dl')"
+                    :href="`osu://b/${row.difficulty_id}`"
+                    rel="noopener"
                     >In-Game Open</a
                 >
             </div>
