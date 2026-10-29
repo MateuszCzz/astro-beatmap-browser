@@ -16,6 +16,7 @@ import {
 } from "../composables/beatmap";
 
 import { tip } from "../composables/tooltip";
+import { pillsOf } from "../composables/pill.ts";
 import RatioRing from "./RatioRing.vue";
 
 const props = defineProps<{
@@ -38,10 +39,21 @@ async function copyId() {
         // clipboard blocked
     }
 }
+// gen or take by mask already done pills
+const pills = computed(() => pillsOf(props.row));
 </script>
 
 <template>
     <li class="map-row">
+        <div class="pills">
+            <span
+                v-for="p in pills"
+                :key="p.key"
+                v-bind="p.attrs"
+                class="pill"
+                >{{ p.label }}</span
+            >
+        </div>
         <!-- cover -->
         <div>
             <img
@@ -64,12 +76,6 @@ async function copyId() {
                         {{ row.difficulty_id }}
                     </a>
                 </span>
-                <span v-bind="tip(`T${row.user_tier}`)"
-                    >T{{ row.user_tier }}</span
-                >
-                <span v-bind="tip(MODS[row.mods])">{{
-                    MODS[row.mods] ?? row.mods
-                }}</span>
                 <strong>{{ row.artist }} – {{ row.title }}</strong>
                 <span>[{{ row.diff }}]</span>
                 <small>
@@ -204,6 +210,30 @@ async function copyId() {
 </template>
 
 <style scoped>
+.pills {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25em;
+}
+
+.pill {
+    text-align: center;
+    min-width: 40px;
+    display: inline-block;
+    text-box: trim-both cap alphabetic;
+    padding: 0.32em 0.45em;
+    border-radius: 999px;
+
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+
+    font-size: 1.2em;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+
+    box-shadow: 0 0 0 3px var(--pill-fg);
+}
 span {
     margin: 3px;
 }
@@ -225,10 +255,8 @@ span {
     font-weight: 600;
     line-height: 1.3;
     white-space: nowrap;
-
-    outline: 1.2px solid currentColor;
+    outline: 2px solid currentColor;
     outline-offset: -1px;
-    box-shadow: inset 0 0 0 1px currentColor;
 }
 
 .score {
