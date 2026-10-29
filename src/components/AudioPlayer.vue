@@ -70,6 +70,7 @@ defineExpose({ toggle, playingId, isPlaying });
             <audio
                 ref="audio"
                 controls
+                :volume="0.5"
                 preload="none"
                 @play="onPlay"
                 @pause="isPlaying = false"
