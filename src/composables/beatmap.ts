@@ -1,7 +1,7 @@
 export const MODS = {
     1: "NM",
-    2: "DT",
-    3: "HR",
+    2: "HR",
+    3: "DT",
     4: "DTHR",
 } as const satisfies Record<number, string>;
 export type ModId = keyof typeof MODS;
