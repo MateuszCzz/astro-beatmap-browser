@@ -1,0 +1,12 @@
+{
+  "tiers": {
+    "1": { "core": "tier_1_core.json", "rest": ["tier_1_rest.json"] },
+    "2": { "core": "tier_2_core.json", "rest": ["tier_2_rest.json"] },
+    "3": { "core": "tier_3_core.json", "rest": ["tier_3_rest.json"] },
+    "4": { "core": "tier_4_core.json", "rest": ["tier_4_rest.json"] }
+  },
+  "lookups": {
+    "tags":    { "core": "tags.json",         "rest": [] },
+    "mappers": { "core": "mappers_core.json", "rest": ["mappers_rest.json"] }
+  }
+}

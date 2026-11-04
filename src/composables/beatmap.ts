@@ -6,7 +6,8 @@ export const MODS = {
 } as const satisfies Record<number, string>;
 export type ModId = keyof typeof MODS;
 
-export type Tier = 1 | 2 | 3 | 4;
+export const TIERS = [1, 2, 3, 4] as const;
+export type Tier = (typeof TIERS)[number];
 
 export const GENRES: Record<number, string> = {
     2: "Video Game",
