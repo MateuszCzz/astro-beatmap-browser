@@ -188,10 +188,6 @@ const pills = computed(() => pillsOf(props.row));
                     <div class="stat" v-bind="tip('od')">
                         <small>OD</small> <b>{{ decimalFormat(row.od) }}</b>
                     </div>
-                    <div class="stat" data-fold="1" v-bind="tip('pass')">
-                        <small>PASS RATE</small>
-                        <b>{{ ratioFormat(row.pass_ratio) }}</b>
-                    </div>
                     <div class="stat" data-fold="2" v-bind="tip('hd')">
                         <small>HD USAGE</small>
                         <b>{{ ratioFormat(row.hidden_ratio) }}</b>
@@ -206,13 +202,6 @@ const pills = computed(() => pillsOf(props.row));
                         :value="row.aim_speed_ratio"
                         style="--ring-color: var(--gold)"
                         v-bind="tip('aimbias')"
-                    />
-                    <RatioRing
-                        :data-fold="1"
-                        label="PASS RATE"
-                        :value="row.pass_ratio"
-                        style="--ring-color: var(--green)"
-                        v-bind="tip('pass')"
                     />
                     <RatioRing
                         :data-fold="2"
@@ -670,7 +659,6 @@ a:hover {
     }
 }
 /* 1140 requires more views */
-
 
 @media (prefers-reduced-motion: reduce) {
     .cover img,
