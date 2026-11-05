@@ -42,6 +42,18 @@ async function copyId() {
 }
 // gen or take by mask already done pills
 const pills = computed(() => pillsOf(props.row));
+
+import { useLookups } from "../composables/useLookups";
+
+const { name: lookup } = useLookups();
+
+// empty stringed in look up means deleted account
+const mapper = computed(
+    () => lookup("mappers", props.row.mapper_id) || "<deleted>",
+);
+const tags = computed(() =>
+    props.row.tags.map((id) => ({ id, label: lookup("tags", id) })),
+);
 </script>
 
 <template>
@@ -141,7 +153,7 @@ const pills = computed(() => pillsOf(props.row));
                                 :href="`https://osu.ppy.sh/users/${row.mapper_id}`"
                                 target="_blank"
                                 rel="noopener"
-                                >{{ row.mapper_id }}</a
+                                >{{ mapper }}</a
                             >
                         </small>
                     </div>
@@ -242,7 +254,7 @@ const pills = computed(() => pillsOf(props.row));
                 </div>
                 <!-- tags -->
                 <div v-if="row.tags.length" class="tags">
-                    <span v-for="t in row.tags" :key="t">{{ t }}</span>
+                    <span v-for="t in tags" :key="t.id">{{ t.label }}</span>
                 </div>
                 <!-- pp markers -->
                 <div class="pp">

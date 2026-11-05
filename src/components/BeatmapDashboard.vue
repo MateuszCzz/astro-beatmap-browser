@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from "vue";
+import { computed, ref } from "vue";
 import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
 import type { DataFiles } from "../composables/data";
 import { useData } from "../composables/useData";
+import { provideLookups } from "../composables/useLookups.ts";
 import type { Tier } from "../composables/beatmap.ts";
 
 const props = defineProps<{ files: DataFiles }>();
@@ -12,22 +13,12 @@ const TIER: Tier = 4;
 const tier = ref(TIER);
 const { rows: beatmapRows } = useData(tier, props.files.tiers);
 
+// rendering waits for the small core lookup tables
+const { ready } = provideLookups(props.files.lookups);
+const loading = computed(() => !ready.value);
+
 const PREVIEW = 50;
 const visible = computed(() => beatmapRows.value.slice(0, PREVIEW));
-
-const loading = ref(true);
-
-// delay helper
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-onMounted(async () => {
-    try {
-        // TODO: replace with json successful load confirmation
-        await delay(5000);
-    } finally {
-        loading.value = false;
-    }
-});
 </script>
 
 <template>
