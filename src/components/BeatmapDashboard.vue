@@ -1,36 +1,45 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, toRef } from "vue";
 import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
 import type { DataFiles } from "../composables/data";
 import { useData } from "../composables/useData";
 import { provideLookups } from "../composables/useLookups.ts";
-import type { Tier } from "../composables/beatmap.ts";
+import { useFilters } from "../composables/useFilters";
 
 const props = defineProps<{ files: DataFiles }>();
 
-const TIER: Tier = 4;
-const tier = ref(TIER);
-const { rows: beatmapRows } = useData(tier, props.files.tiers);
+const { state, matcher } = useFilters();
+const { rows } = useData(toRef(state, "tier"), props.files.tiers);
 
 // rendering waits for the small core lookup tables
 const { ready } = provideLookups(props.files.lookups);
 const loading = computed(() => !ready.value);
 
+// apply filters
+const filtered = computed(() => rows.value.filter(matcher.value));
+
 const PREVIEW = 50;
-const visible = computed(() => beatmapRows.value.slice(0, PREVIEW));
+const visible = computed(() => filtered.value.slice(0, PREVIEW));
 </script>
 
 <template>
     <div class="farm">
         <FilterBar />
-        <!-- placeholder while content is loading -->
+        <!-- placeholder while loading -->
         <div v-if="loading" class="skeleton" aria-hidden="true">
             <div v-for="n in 4" :key="n" class="skeleton-card" />
         </div>
 
         <template v-else>
+            <p class="notice" aria-live="polite">
+                {{ filtered.length.toLocaleString() }} maps.
+            </p>
             <MapList :rows="visible" />
+            <!-- placeholder while empty -->
+            <p v-if="!filtered.length" class="notice">
+                No maps match these filters.
+            </p>
         </template>
     </div>
 </template>
@@ -54,6 +63,16 @@ const visible = computed(() => beatmapRows.value.slice(0, PREVIEW));
 .notice {
     margin: 0 1.5em 1em;
     color: var(--muted);
+}
+.notice button {
+    margin-left: 0.6em;
+    padding: 0.2em 0.8em;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.6em;
+    cursor: pointer;
 }
 
 /* Loading placeholder */
