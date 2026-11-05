@@ -15,17 +15,23 @@ const props = defineProps<{ files: DataFiles }>();
 provideAudioPreview();
 
 const { state, matcher } = useFilters();
-const { rows } = useData(toRef(state, "tier"), props.files.tiers);
+const { rows, phase, restError, retry } = useData(
+    toRef(state, "tier"),
+    props.files.tiers,
+);
 
-// rendering waits for the small core lookup tables
+// rendering waits for the core tables
 const { ready } = provideLookups(props.files.lookups);
-const loading = computed(() => !ready.value);
+
+const loading = computed(
+    () =>
+        phase.value !== "error" && (phase.value === "loading" || !ready.value),
+);
 
 // apply filters
 const filtered = computed(() => rows.value.filter(matcher.value));
-
-const PREVIEW = 50;
-const visible = computed(() => filtered.value.slice(0, PREVIEW));
+const queryKey = computed(() => [state.tier, matcher.value] as const);
+const failed = computed(() => phase.value === "error" || restError.value);
 </script>
 
 <template>
@@ -37,14 +43,16 @@ const visible = computed(() => filtered.value.slice(0, PREVIEW));
         </div>
 
         <template v-else>
-            <p class="notice" aria-live="polite">
+            <p v-if="phase !== 'error'" class="notice" aria-live="polite">
                 {{ filtered.length.toLocaleString() }} maps.
             </p>
-            <MapList :rows="visible" />
-            <!-- placeholder while empty -->
-            <p v-if="!filtered.length" class="notice">
-                No maps match these filters.
-            </p>
+            <MapList
+                :rows="filtered"
+                :reset-key="queryKey"
+                :loading-more="phase === 'core'"
+                :failed="failed"
+                @retry="retry"
+            />
         </template>
         <AudioPlayer />
         <TooltipBox />
@@ -71,16 +79,6 @@ const visible = computed(() => filtered.value.slice(0, PREVIEW));
     margin: 0 1.5em 1em;
     color: var(--muted);
 }
-.notice button {
-    margin-left: 0.6em;
-    padding: 0.2em 0.8em;
-    font: inherit;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 0.6em;
-    cursor: pointer;
-}
 
 /* Loading placeholder */
 .skeleton {
@@ -88,6 +86,13 @@ const visible = computed(() => filtered.value.slice(0, PREVIEW));
     display: grid;
     gap: 1em;
     padding: 1.5em;
+    opacity: 0;
+    animation: reveal 0s 150ms forwards;
+}
+@keyframes reveal {
+    to {
+        opacity: 1;
+    }
 }
 .skeleton-card {
     min-height: 8.75em;
