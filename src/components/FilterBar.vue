@@ -11,7 +11,9 @@ const MOD_BUTTONS = Object.entries(MODS).map(([id, label]) => ({
 }));
 
 function toggleMod(id: ModId) {
-    state.mod = state.mod === id ? null : id;
+    state.mod = state.mod.includes(id)
+        ? state.mod.filter((m) => m !== id)
+        : [...state.mod, id];
 }
 </script>
 
@@ -48,7 +50,7 @@ function toggleMod(id: ModId) {
                 :key="m.id"
                 type="button"
                 class="chip"
-                :aria-pressed="state.mod === m.id"
+                :aria-pressed="state.mod.includes(m.id)"
                 @click="toggleMod(m.id)"
             >
                 {{ m.label }}

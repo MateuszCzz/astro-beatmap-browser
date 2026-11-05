@@ -5,13 +5,13 @@ import { DEFAULT_TIER } from "./data";
 export interface FilterState {
     tier: Tier;
     search: string;
-    mod: ModId | null;
+    mod: ModId[];
 }
 
 const state = reactive<FilterState>({
     tier: DEFAULT_TIER,
     search: "",
-    mod: null,
+    mod: [],
 });
 
 const appliedSearch = ref("");
@@ -41,7 +41,7 @@ const matcher = computed(() => {
     const mod = state.mod;
 
     return (r: BeatmapParsed): boolean => {
-        if (mod !== null && r.mods !== mod) return false;
+        if (mod.length && !mod.includes(r.mods)) return false;
         if (terms.length) {
             const q = haystack(r);
             for (const t of terms) if (!q.includes(t)) return false;
@@ -52,7 +52,7 @@ const matcher = computed(() => {
 
 function reset() {
     state.search = "";
-    state.mod = null;
+    state.mod = [];
 }
 
 export const useFilters = () => ({ state, matcher, reset });
