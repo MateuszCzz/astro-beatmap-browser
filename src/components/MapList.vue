@@ -2,22 +2,12 @@
 import { computed, provide, ref } from "vue";
 import MapRow from "./MapRow.vue";
 import type { BeatmapParsed } from "../composables/beatmap";
-import AudioPlayer from "./AudioPlayer.vue";
-import TooltipBox from "./TooltipBox.vue";
+
 
 const props = defineProps<{
     rows: readonly BeatmapParsed[];
 }>();
 
-const player = ref<InstanceType<typeof AudioPlayer> | null>(null);
-const playingId = computed(() =>
-    player.value?.isPlaying ? player.value.playingId : null,
-);
-provide("playingId", playingId);
-
-function onPreview(id: number) {
-    player.value?.toggle(id);
-}
 </script>
 
 <template>
@@ -46,8 +36,6 @@ function onPreview(id: number) {
             </li>
         </ol>
 
-        <AudioPlayer ref="player" />
-        <TooltipBox />
     </div>
 </template>
 <style scoped>

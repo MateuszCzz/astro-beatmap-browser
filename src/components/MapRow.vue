@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, type Ref } from "vue";
+import { computed } from "vue";
 import {
     srColor,
     srFormat,
@@ -12,24 +12,21 @@ import {
 import {
     GENRES,
     LANGUAGES,
-    MODS,
     type BeatmapParsed,
 } from "../composables/beatmap";
 
 import { tip } from "../composables/tooltip";
+import { useAudioPreview } from "../composables/useAudio.ts";
 import { pillsOf } from "../composables/pill.ts";
 import RatioRing from "./RatioRing.vue";
+import { useLookups } from "../composables/useLookups";
 
 const props = defineProps<{
     row: BeatmapParsed;
     eager?: boolean;
 }>();
 
-const emit = defineEmits<{
-    preview: [mapsetId: number];
-}>();
-
-const playingId = inject<Ref<number | null>>("playingId")!;
+const { playingId, toggle } = useAudioPreview();
 const playing = computed(() => playingId.value === props.row.mapset_id);
 
 // on click save id to clipboard
@@ -42,8 +39,6 @@ async function copyId() {
 }
 // gen or take by mask already done pills
 const pills = computed(() => pillsOf(props.row));
-
-import { useLookups } from "../composables/useLookups";
 
 const { name: lookup } = useLookups();
 
@@ -81,7 +76,7 @@ const tags = computed(() =>
                 type="button"
                 :aria-pressed="playing"
                 :aria-label="playing ? 'Pause preview' : 'Play preview'"
-                @click="emit('preview', row.mapset_id)"
+                @click="toggle(row.mapset_id)"
             >
                 <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="6.5" y="5" width="4" height="14" rx="1.2" />

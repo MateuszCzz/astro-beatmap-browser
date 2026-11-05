@@ -2,12 +2,17 @@
 import { computed, toRef } from "vue";
 import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
+import AudioPlayer from "./AudioPlayer.vue";
+import TooltipBox from "./TooltipBox.vue";
 import type { DataFiles } from "../composables/data";
 import { useData } from "../composables/useData";
 import { provideLookups } from "../composables/useLookups.ts";
+import { provideAudioPreview } from "../composables/useAudio.ts";
 import { useFilters } from "../composables/useFilters";
 
 const props = defineProps<{ files: DataFiles }>();
+
+provideAudioPreview();
 
 const { state, matcher } = useFilters();
 const { rows } = useData(toRef(state, "tier"), props.files.tiers);
@@ -41,6 +46,8 @@ const visible = computed(() => filtered.value.slice(0, PREVIEW));
                 No maps match these filters.
             </p>
         </template>
+        <AudioPlayer />
+        <TooltipBox />
     </div>
 </template>
 

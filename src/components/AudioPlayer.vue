@@ -1,29 +1,8 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount } from "vue";
+import { useAudioPreview } from "../composables/useAudio";
 
-const audio = ref<HTMLAudioElement | null>(null);
-const playingId = ref<number | null>(null);
-const isPlaying = ref(false);
-
-// audio controls
-function toggle(mapsetId: number) {
-    const a = audio.value;
-    if (!a) return;
-
-    // same id, start/stop
-    if (playingId.value === mapsetId) {
-        if (a.paused) a.play().catch(() => {});
-        else a.pause();
-        return;
-    }
-
-    // diff id, switch
-    playingId.value = mapsetId;
-    a.src = `https://b.ppy.sh/preview/${mapsetId}.mp3`;
-    a.play().catch(() => {
-        // loading failed
-    });
-}
+const { audio, loadedId, isPlaying, close } = useAudioPreview();
 
 // hide bar after timeout + preview finishes
 const CLOSE_TIMEOUT_MS = 600;
@@ -34,17 +13,18 @@ function onPlay() {
     clearTimeout(closeTimer); // something new started
 }
 
+function onPause() {
+    isPlaying.value = false;
+}
+
 function onEnded() {
     isPlaying.value = false;
     closeTimer = setTimeout(close, CLOSE_TIMEOUT_MS);
 }
 
-// destruction
-function close() {
+function closeNow() {
     clearTimeout(closeTimer);
-    audio.value?.pause(); // pause audio while transition
-    playingId.value = null;
-    isPlaying.value = false;
+    close();
 }
 
 // transition done, destroy rest
@@ -59,24 +39,21 @@ onBeforeUnmount(() => {
     clearTimeout(closeTimer);
     audio.value?.pause();
 });
-
-// for identifying playing row
-defineExpose({ toggle, playingId, isPlaying });
 </script>
 
 <template>
     <Transition name="player" @after-leave="resetAudio">
-        <div v-show="playingId !== null" class="player">
+        <div v-show="loadedId !== null" class="player">
             <audio
                 ref="audio"
                 controls
                 :volume="0.5"
                 preload="none"
                 @play="onPlay"
-                @pause="isPlaying = false"
+                @pause="onPause"
                 @ended="onEnded"
             />
-            <button type="button" aria-label="Close player" @click="close">
+            <button type="button" aria-label="Close player" @click="closeNow">
                 ✕
             </button>
         </div>
