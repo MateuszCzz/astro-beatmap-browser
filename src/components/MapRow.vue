@@ -61,7 +61,7 @@ const tags = computed(() =>
         <!-- cover -->
         <div class="cover">
             <img
-                :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card.jpg`"
+                :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/list.jpg`"
                 alt=""
                 :loading="eager ? 'eager' : 'lazy'"
             />
