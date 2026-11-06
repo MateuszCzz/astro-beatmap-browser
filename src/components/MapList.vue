@@ -73,7 +73,7 @@ const { visible, hasMore, sentinel } = useDynamicList(
     padding: 1.5em;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1em;
+    gap: 0.7em;
 }
 .map-row {
     content-visibility: auto;

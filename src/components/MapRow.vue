@@ -9,17 +9,13 @@ import {
     decimalFormat,
     ratioFormat,
 } from "../composables/rowDisplay";
-import {
-    GENRES,
-    LANGUAGES,
-    type BeatmapParsed,
-} from "../composables/beatmap";
-
+import { GENRES, LANGUAGES, type BeatmapParsed } from "../composables/beatmap";
 import { tip } from "../composables/tooltip";
 import { useAudioPreview } from "../composables/useAudio.ts";
+import { useLookups } from "../composables/useLookups";
 import { pillsOf } from "../composables/pill.ts";
 import RatioRing from "./RatioRing.vue";
-import { useLookups } from "../composables/useLookups";
+import RatioBar from "./RatioBar.vue";
 
 const props = defineProps<{
     row: BeatmapParsed;
@@ -27,6 +23,7 @@ const props = defineProps<{
 }>();
 
 const { playingId, toggle } = useAudioPreview();
+const { name: lookup } = useLookups();
 const playing = computed(() => playingId.value === props.row.mapset_id);
 
 // on click save id to clipboard
@@ -39,8 +36,6 @@ async function copyId() {
 }
 // gen or take by mask already done pills
 const pills = computed(() => pillsOf(props.row));
-
-const { name: lookup } = useLookups();
 
 // empty stringed in look up means deleted account
 const mapper = computed(
@@ -176,11 +171,7 @@ const tags = computed(() =>
                     <div class="stat" v-bind="tip('bpm')">
                         <small>BPM</small> <b>{{ row.bpm }}</b>
                     </div>
-                    <div class="stat" data-fold="1" v-bind="tip('aimbias')">
-                        <small>AIM BIAS</small>
-                        <b>{{ ratioFormat(row.aim_speed_ratio) }}</b>
-                    </div>
-                    <div class="stat" data-fold="2" v-bind="tip('top25')">
+                    <div class="stat" data-fold v-bind="tip('top25')">
                         <small>TOP25 RATE</small
                         ><b>{{ ratioFormat(row.profile_top_25_ratio) }}</b>
                     </div>
@@ -195,7 +186,7 @@ const tags = computed(() =>
                     <div class="stat" v-bind="tip('od')">
                         <small>OD</small> <b>{{ decimalFormat(row.od) }}</b>
                     </div>
-                    <div class="stat" data-fold="2" v-bind="tip('hd')">
+                    <div class="stat" data-fold v-bind="tip('hd')">
                         <small>HD USAGE</small>
                         <b>{{ ratioFormat(row.hidden_ratio) }}</b>
                     </div>
@@ -204,21 +195,12 @@ const tags = computed(() =>
                 <!-- ratio rings -->
                 <div class="rings">
                     <RatioRing
-                        :data-fold="1"
-                        label="AIM BIAS"
-                        :value="row.aim_speed_ratio"
-                        style="--ring-color: var(--gold)"
-                        v-bind="tip('aimbias')"
-                    />
-                    <RatioRing
-                        :data-fold="2"
                         label="TOP25 RATE"
                         :value="row.profile_top_25_ratio"
-                        style="--ring-color: var(--pink)"
+                        style="--ring-color: var(--gold)"
                         v-bind="tip('top25')"
                     />
                     <RatioRing
-                        :data-fold="2"
                         label="HD USAGE"
                         :value="row.hidden_ratio"
                         style="--ring-color: var(--blue)"
@@ -226,17 +208,32 @@ const tags = computed(() =>
                     />
                 </div>
 
-                <!-- score -->
-                <div
-                    class="score"
-                    v-bind="tip('score')"
-                    :style="scoreVars(row.score)"
-                >
-                    {{ bigIntFormat(row.score) }}
+                <!-- pp data -->
+                <div class="payoff" :style="scoreVars(row.score)">
+                    <div class="gains">
+                        <div class="stat gain" v-bind="tip('avg')">
+                            <small>NET GAIN</small>
+                            <b
+                                >+{{ bigIntFormat(row.median_pp_gain)
+                                }}<span> pp</span></b
+                            >
+                        </div>
+                        <div class="stat peak" v-bind="tip('max')">
+                            <small>MAX PP</small>
+                            <b
+                                >{{ bigIntFormat(row.max_pp)
+                                }}<span> pp</span></b
+                            >
+                        </div>
+                    </div>
+                    <div class="score" v-bind="tip('score')">
+                        <small>SCORE</small>
+                        <span>{{ bigIntFormat(row.score) }}</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="bar">
+            <div class="foot">
                 <!-- rest info -->
                 <div class="meta">
                     <span v-bind="tip('genre')">{{
@@ -251,19 +248,9 @@ const tags = computed(() =>
                 <div v-if="row.tags.length" class="tags">
                     <span v-for="t in tags" :key="t.id">{{ t.label }}</span>
                 </div>
-                <!-- pp markers -->
-                <div class="pp">
-                    <div v-bind="tip('avg')" style="--pp: var(--green)">
-                        <small>NET GAIN:</small>
-                        <b
-                            >+{{ bigIntFormat(row.median_pp_gain)
-                            }}<span> pp</span></b
-                        >
-                    </div>
-                    <div v-bind="tip('max')" style="--pp: var(--gold)">
-                        <small>MAX PP:</small>
-                        <b>{{ bigIntFormat(row.max_pp) }}<span> pp</span></b>
-                    </div>
+                <!-- map style -->
+                <div class="bar" v-bind="tip('aimbias')">
+                    <RatioBar :ratio="row.aim_speed_ratio" />
                 </div>
             </div>
         </div>
@@ -318,13 +305,7 @@ a:hover {
     height: 100%;
     object-fit: cover;
     border-radius: inherit;
-    /* mobile */
     filter: brightness(0.65);
-    transition: filter 0.15s;
-}
-.map-row:hover .cover img,
-.map-row:has(:focus-visible) .cover img {
-    filter: brightness(0.5);
 }
 .cover svg {
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
@@ -363,9 +344,6 @@ a:hover {
         color 0.15s,
         transform 0.15s;
 }
-.cover-btn:hover {
-    color: rgba(255, 255, 255, 0.95);
-}
 .play {
     position: relative;
     width: 56px;
@@ -391,11 +369,6 @@ a:hover {
     display: flex;
     justify-content: center;
     gap: 6px;
-    transition: opacity 0.15s;
-}
-.map-row:hover .actions,
-.map-row:has(:focus-visible) .actions {
-    opacity: 1;
 }
 .actions .cover-btn {
     width: 34px;
@@ -421,6 +394,7 @@ a:hover {
 }
 .top {
     flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -441,12 +415,12 @@ a:hover {
 .title span {
     margin-left: 8px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--gray);
 }
 .diff {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     overflow: hidden;
 }
 .diff small {
@@ -460,7 +434,8 @@ a:hover {
 
 .stats,
 .rings,
-.score {
+.payoff,
+.bar {
     align-self: stretch;
     margin: 10px 0;
     padding-left: 22px;
@@ -527,10 +502,10 @@ a:hover {
 
 .score {
     flex: none;
+    align-self: stretch;
     display: flex;
-    align-items: center;
-    width: 224px;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
     font-size: 68px;
     font-weight: 700;
     line-height: 1;
@@ -542,26 +517,39 @@ a:hover {
         0 0 calc(26px * var(--g))
             color-mix(in srgb, var(--sc) calc(35% * var(--g)), transparent);
 }
+.score small {
+    margin-bottom: 3px;
+    transform: translate(3px, -3px);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    text-shadow: none;
+}
+.score span {
+    text-box: trim-both cap alphabetic;
+}
 
-.bar {
+.foot {
+    --bar-bg: color-mix(in srgb, var(--color-surface), var(--color-bg));
     flex: none;
-    height: 46px;
+    height: 38px;
     display: flex;
     align-items: center;
-    gap: 18px;
     padding: 0 24px 0 16px;
-    background: color-mix(in srgb, var(--color-surface), var(--color-bg));
+    background: var(--bar-bg);
     border-top: 1px solid var(--line);
     border-radius: 0 0 17px 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
 }
 .meta {
     flex: none;
-    width: 250px;
+    padding-right: 16px;
 }
 .meta span + span::before {
-    content: "·";
+    content: "\00b7";
     margin: 0 8px;
     font-weight: 400;
     color: color-mix(in srgb, var(--gray) 75%, var(--color-bg));
@@ -569,103 +557,76 @@ a:hover {
 .tags {
     flex: 1 1 0;
     min-width: 0;
-    height: 24px;
+    height: 20px;
     display: flex;
     align-items: center;
     gap: 6px;
-    padding-left: 18px;
+    padding-left: 16px;
     border-left: 1px solid var(--line);
     overflow: hidden;
 }
 .tags span {
     flex: none;
-    padding: 2px 10px;
+    padding: 1px 8px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    color: var(--gray);
-}
-/* rest info */
-.pp {
-    flex: none;
-    display: flex;
-    gap: 10px;
-    margin-left: auto;
-}
-.tags + .pp::before {
-    content: "";
-    align-self: center;
-    width: 1px;
-    height: 24px;
-    margin-right: 8px;
-    background: var(--line);
-}
-.pp > div {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: baseline;
-    align-content: center;
-    column-gap: 8px;
-    box-sizing: border-box;
-    height: 30px;
-    padding: 0 12px;
-    border-radius: 10px;
-}
-.pp > div::before {
-    content: "";
-    align-self: center;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--pp);
-    margin-top: 3.5px;
-}
-.pp small {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--gray);
-}
-.pp b {
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1;
     color: var(--color-text);
 }
 
-.pp b span {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray);
+.payoff,
+.bar {
+    flex: none;
+    width: 320px;
+}
+.payoff {
+    justify-content: space-between;
+    --gain: light-dark(oklch(0.55 0.11 160), var(--green));
+    --peak: light-dark(oklch(0.55 0.11 85), var(--gold));
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left-color: color-mix(in srgb, var(--sc) 40%, var(--line));
+}
+.gains {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
 }
 
-/* responsive change rings to strings */
-/* 2/4 rings */
-@container row (max-width: 1285px) {
-    .rings [data-fold="1"] {
-        display: none;
-    }
-    .stat[data-fold="1"] {
-        display: flex;
-    }
-    .stats {
-        grid-template-columns: repeat(4, 80px);
-    }
+.gains b {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19px;
 }
-/* 0/4 rings */
-@container row (max-width: 1230px) {
+.gain b {
+    color: var(--gain);
+}
+
+.gains b span {
+    font-size: 12px;
+}
+
+.bar {
+    margin: 5px 0 5px auto;
+    display: flex;
+    align-items: center;
+}
+
+@container row (max-width: 1200px) {
     .rings {
         display: none;
     }
-    .stat[data-fold="2"] {
+    .stat[data-fold] {
         display: flex;
     }
     .stats {
-        grid-template-columns: repeat(5, 80px);
+        grid-template-columns: 80px 80px 56px 80px;
     }
 }
-/* 1140 requires more views */
+/* #TODO tablet and mobile views */
 
 @media (prefers-reduced-motion: reduce) {
     .cover img,
@@ -676,6 +637,12 @@ a:hover {
 }
 /* pointer behavior, not mobile */
 @media (hover: hover) {
+    a:hover {
+        text-decoration: underline;
+    }
+    .cover-btn:hover {
+        color: rgba(255, 255, 255, 0.95);
+    }
     .cover img {
         filter: brightness(0.82);
     }
@@ -689,6 +656,15 @@ a:hover {
     .map-row:hover .actions,
     .map-row:has(:focus-visible) .actions {
         opacity: 1;
+    }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .cover img {
+        transition: filter 0.15s;
+    }
+    .actions {
+        transition: opacity 0.15s;
     }
 }
 </style>
