@@ -405,21 +405,44 @@ a {
     flex-direction: column;
     gap: 7px;
 }
+
+/* allow overflow to truncate */
+.title,
+.diff {
+    display: flex;
+    align-items: baseline;
+    column-gap: 8px;
+}
+.title > *,
+.diff > * {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: max-content;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Chromium/Safari */
+    text-overflow: ".."; /* Firefox */
+}
+
+.title > :first-child {
+    flex-grow: 3;
+}
+.diff > :first-child {
+    flex-grow: 2;
+}
+
 .title {
     font-size: 20px;
     font-weight: 700;
-    overflow: hidden;
 }
 .title span {
-    margin-left: 8px;
     font-size: 14px;
     font-weight: 600;
     color: var(--gray);
 }
 .diff {
+    column-gap: 4px;
     font-size: 15px;
     font-weight: 600;
-    overflow: hidden;
 }
 .diff small {
     font-size: 13px;
