@@ -10,10 +10,11 @@ import {
     ratioFormat,
 } from "../domain/display.ts";
 import { GENRES, LANGUAGES, type BeatmapParsed } from "../domain/beatmap";
-import { tip, tipLazy } from "../domain/tooltip";
+import { tip, tipLazy, tipAttrs, tipText } from "../domain/tooltip";
 import { pillsCreate } from "../domain/pill.ts";
 import { useAudio } from "../composables/useAudio.ts";
 import { useLookup } from "../composables/useLookup.ts";
+import { useFoldingTags } from "../composables/useFoldingTags.ts";
 import RatioRing from "./RatioRing.vue";
 import RatioBar from "./RatioBar.vue";
 
@@ -44,6 +45,15 @@ const mapper = computed(
 const tags = computed(() =>
     props.row.tags.map((id) => ({ id, label: lookup("tags", id) })),
 );
+
+const { shown, rest, moreFits, bind: bindTags } = useFoldingTags(tags);
+const hiddenTagsTip = computed(() => {
+    const n = rest.value.length;
+    return tipText(
+        `${n} more tag${n > 1 ? "s:" : ":"}`,
+        rest.value.map((t) => t.label).join("\n"),
+    );
+});
 </script>
 
 <template>
@@ -244,8 +254,15 @@ const tags = computed(() =>
                     <span v-bind="tip('year')">{{ row.year }}</span>
                 </div>
                 <!-- tags -->
-                <div v-if="row.tags.length" class="tags">
-                    <span v-for="t in tags" :key="t.id">{{ t.label }}</span>
+                <div v-if="row.tags.length" :ref="bindTags" class="tags">
+                    <span v-for="t in shown" :key="t.id">{{ t.label }}</span>
+                    <span
+                        v-if="rest.length"
+                        v-show="moreFits"
+                        class="more"
+                        v-bind="tipAttrs(hiddenTagsTip)"
+                        >+{{ rest.length }}</span
+                    >
                 </div>
                 <!-- map style -->
                 <div class="bar" v-bind="tip('aimbias')">
@@ -582,7 +599,7 @@ a {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding-left: 16px;
+    padding: 0 16px;
     border-left: 1px solid var(--line);
     overflow: hidden;
 }
