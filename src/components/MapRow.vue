@@ -8,12 +8,12 @@ import {
     lengthFormat,
     decimalFormat,
     ratioFormat,
-} from "../composables/rowDisplay";
-import { GENRES, LANGUAGES, type BeatmapParsed } from "../composables/beatmap";
-import { tip } from "../composables/tooltip";
-import { useAudioPreview } from "../composables/useAudio.ts";
-import { useLookups } from "../composables/useLookups";
-import { pillsOf } from "../composables/pill.ts";
+} from "../domain/display.ts";
+import { GENRES, LANGUAGES, type BeatmapParsed } from "../domain/beatmap";
+import { tip } from "../domain/tooltip";
+import { pillsCreate } from "../domain/pill.ts";
+import { useAudio } from "../composables/useAudio.ts";
+import { useLookup } from "../composables/useLookup.ts";
 import RatioRing from "./RatioRing.vue";
 import RatioBar from "./RatioBar.vue";
 
@@ -22,8 +22,8 @@ const props = defineProps<{
     eager?: boolean;
 }>();
 
-const { playingId, toggle } = useAudioPreview();
-const { name: lookup } = useLookups();
+const { playingId, toggle } = useAudio();
+const { name: lookup } = useLookup();
 const playing = computed(() => playingId.value === props.row.mapset_id);
 
 // on click save id to clipboard
@@ -35,7 +35,7 @@ async function copyId() {
     }
 }
 // gen or take by mask already done pills
-const pills = computed(() => pillsOf(props.row));
+const pills = computed(() => pillsCreate(props.row));
 
 // empty stringed in look up means deleted account
 const mapper = computed(
@@ -60,7 +60,8 @@ const tags = computed(() =>
                 <span
                     v-for="p in pills"
                     :key="p.key"
-                    v-bind="p.attrs"
+                    v-bind="tip(p.key)"
+                    :style="p.style"
                     class="pill"
                     >{{ p.label }}</span
                 >
@@ -69,8 +70,6 @@ const tags = computed(() =>
             <button
                 class="cover-btn play"
                 type="button"
-                :aria-pressed="playing"
-                :aria-label="playing ? 'Pause preview' : 'Play preview'"
                 @click="toggle(row.mapset_id)"
             >
                 <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
@@ -261,6 +260,8 @@ const tags = computed(() =>
 .map-row {
     --line: var(--color-border);
     container: row / inline-size;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 140px;
     overflow-clip-margin: 16px;
     display: flex;
     height: 140px;
@@ -274,13 +275,10 @@ const tags = computed(() =>
     white-space: nowrap;
 }
 
-/* tooltips  */
+/* links  */
 a {
     color: inherit;
     text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
 }
 [data-tip] {
     cursor: help;

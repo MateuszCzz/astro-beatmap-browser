@@ -4,18 +4,18 @@ import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
 import AudioPlayer from "./AudioPlayer.vue";
 import TooltipBox from "./TooltipBox.vue";
-import type { DataFiles } from "../composables/data";
-import { useData } from "../composables/useData";
-import { provideLookups } from "../composables/useLookups.ts";
+import type { DataFiles } from "../domain/manifest";
+import { useBeatmap } from "../composables/useBeatmap.ts";
+import { provideLookups } from "../composables/useLookup.ts";
 import { provideAudioPreview } from "../composables/useAudio.ts";
-import { useFilters } from "../composables/useFilters";
+import { useFilter } from "../composables/useFilter.ts";
 
 const props = defineProps<{ files: DataFiles }>();
 
 provideAudioPreview();
 
-const { state, matcher } = useFilters();
-const { rows, phase, restError, retry } = useData(
+const { state, matcher } = useFilter();
+const { rows, phase, restError, retry } = useBeatmap(
     toRef(state, "tier"),
     props.files.tiers,
 );

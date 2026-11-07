@@ -1,3 +1,51 @@
+import { clamp } from "./display";
+
+export const TIP_ATTR = "data-tip";
+export const TIP_SELECTOR = `[${TIP_ATTR}]`;
+
+export type TipAttrs = Readonly<Record<typeof TIP_ATTR, string>>;
+
+export const tipAttrs = (text: string): TipAttrs => ({ [TIP_ATTR]: text });
+
+export const tipText = (title: string, body: string) => `${title}\n${body}`;
+
+export function splitTip(text: string): { title: string; body: string } {
+    const nl = text.indexOf("\n");
+    return nl < 0
+        ? { title: "", body: text }
+        : { title: text.slice(0, nl), body: text.slice(nl + 1) };
+}
+
+export const refreshTip = (el: Element) =>
+    el.dispatchEvent(new Event("tiprefresh", { bubbles: true }));
+
+const TIP_EDGE = 8; // min distance from viewport edges
+const TIP_GAP = 14; // cursor to tooltip gap
+
+export type Point = { x: number; y: number };
+type Size = { w: number; h: number };
+type Rect = { left: number; top: number; width: number; bottom: number };
+
+export function tipPosition(tip: Size, view: Size, at: Point | Rect): Point {
+    let x: number;
+    let y: number;
+
+    if ("x" in at) {
+        x = at.x - tip.w / 2;
+        y = at.y + TIP_GAP;
+        if (y + tip.h + TIP_EDGE > view.h) y = at.y - tip.h - TIP_GAP;
+    } else {
+        x = at.left + at.width / 2 - tip.w / 2;
+        y = at.top - tip.h - TIP_EDGE;
+        if (y < TIP_EDGE) y = at.bottom + TIP_EDGE;
+    }
+
+    return {
+        x: clamp(x, TIP_EDGE, view.w - tip.w - TIP_EDGE),
+        y: clamp(y, TIP_EDGE, view.h - tip.h - TIP_EDGE),
+    };
+}
+
 export const TIPS = {
     // difficulty params
     sr: "Star rating\nAdjusted by mods if it applies.",
@@ -41,11 +89,9 @@ export const TIPS = {
 
 export type TipKey = keyof typeof TIPS;
 
-// prebuilt once at load
-// one frozen object per tip
-// later return the same object every time
+// Prebuilt once, one frozen object per key
 const ATTRS = Object.fromEntries(
-    Object.entries(TIPS).map(([k, v]) => [k, Object.freeze({ "data-tip": v })]),
-) as Record<TipKey, Readonly<{ "data-tip": string }>>;
+    Object.entries(TIPS).map(([k, text]) => [k, Object.freeze(tipAttrs(text))]),
+) as Record<TipKey, TipAttrs>;
 
-export const tip = (k: TipKey) => ATTRS[k];
+export const tip = (k: TipKey): TipAttrs => ATTRS[k];

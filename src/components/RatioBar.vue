@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { clamp } from "../domain/display";
 
 const props = defineProps<{ ratio: number }>();
 
@@ -10,11 +11,9 @@ const RATIO_MAX = 7500;
 // on which % aim leads color max
 const LEAD_COLOR_MAX = 75;
 
-const clampPct = (x: number) => Math.min(100, Math.max(0, x));
-
 const bar = computed(() => {
     const share = ((props.ratio - RATIO_MIN) * 100) / (RATIO_MAX - RATIO_MIN);
-    const spacing = Math.round(clampPct(share));
+    const spacing = Math.round(clamp(share, 0, 100));
     const density = 100 - spacing;
     const leadPct = Math.max(spacing, density);
 
@@ -23,7 +22,7 @@ const bar = computed(() => {
         density,
         leadPct,
         lead: spacing >= density ? "spacing" : "density",
-        mix: clampPct(((leadPct - 50) * 100) / (LEAD_COLOR_MAX - 50)),
+        mix: clamp(((leadPct - 50) * 100) / (LEAD_COLOR_MAX - 50), 0, 100),
     };
 });
 </script>

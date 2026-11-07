@@ -1,9 +1,9 @@
 import { inject, onScopeDispose, provide, ref, shallowRef, type InjectionKey } from "vue";
-import { FILE_LOOKUPS, fetchJson, type FileLookup, type Split } from "./data";
+import { FILE_LOOKUPS, fetchJson, type FileLookup, type Split } from "../domain/manifest";
 
 type Table = Record<number, string>;
 
-export function createLookups(files: Record<FileLookup, Split>) {
+export function createLookup(files: Record<FileLookup, Split>) {
     const tables = shallowRef(
         Object.fromEntries(FILE_LOOKUPS.map((k) => [k, [] as Table[]])) as Record<FileLookup, Table[]>,
     );
@@ -50,13 +50,13 @@ export function createLookups(files: Record<FileLookup, Split>) {
     return { name, ready };
 }
 
-const KEY: InjectionKey<ReturnType<typeof createLookups>> = Symbol("lookups");
+const KEY: InjectionKey<ReturnType<typeof createLookup>> = Symbol("lookups");
 export function provideLookups(files: Record<FileLookup, Split>) {
-    const lookups = createLookups(files);
+    const lookups = createLookup(files);
     provide(KEY, lookups);
     return lookups;
 }
-export function useLookups() {
+export function useLookup() {
     const lookups = inject(KEY);
     if (!lookups) throw new Error("useLookups() needs provideLookups() in a parent component");
     return lookups;

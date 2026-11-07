@@ -1,59 +1,22 @@
 <script setup lang="ts">
-import { onBeforeUnmount } from "vue";
-import { useAudioPreview } from "../composables/useAudio";
+import { useAudio } from "../composables/useAudio";
 
-const { audio, loadedId, isPlaying, close } = useAudioPreview();
-
-// hide bar after timeout + preview finishes
-const CLOSE_TIMEOUT_MS = 600;
-let closeTimer: ReturnType<typeof setTimeout> | undefined;
-
-function onPlay() {
-    isPlaying.value = true;
-    clearTimeout(closeTimer); // something new started
-}
-
-function onPause() {
-    isPlaying.value = false;
-}
-
-function onEnded() {
-    isPlaying.value = false;
-    closeTimer = setTimeout(close, CLOSE_TIMEOUT_MS);
-}
-
-function closeNow() {
-    clearTimeout(closeTimer);
-    close();
-}
-
-// transition done, destroy rest
-function resetAudio() {
-    const a = audio.value;
-    if (!a) return;
-    a.removeAttribute("src");
-    a.load();
-}
-
-onBeforeUnmount(() => {
-    clearTimeout(closeTimer);
-    audio.value?.pause();
-});
+const { audio, isOpen, hasError, close, release } = useAudio();
 </script>
 
 <template>
-    <Transition name="player" @after-leave="resetAudio">
-        <div v-show="loadedId !== null" class="player">
-            <audio
-                ref="audio"
-                controls
-                :volume="0.5"
-                preload="none"
-                @play="onPlay"
-                @pause="onPause"
-                @ended="onEnded"
-            />
-            <button type="button" aria-label="Close player" @click="closeNow">
+    <Transition name="player" @after-leave="release">
+        <div
+            v-show="isOpen"
+            class="player"
+            role="region"
+            aria-label="Audio preview"
+        >
+            <audio v-show="!hasError" ref="audio" controls preload="none" />
+            <span v-if="hasError" class="player-error" role="status">
+                Preview unavailable
+            </span>
+            <button type="button" aria-label="Close player" @click="close">
                 ✕
             </button>
         </div>
@@ -70,6 +33,7 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    width: min(24rem, calc(100vw - 1.5rem));
     padding: 0.4rem 0.6rem;
     color: var(--text);
     background: var(--surface);
@@ -78,14 +42,18 @@ onBeforeUnmount(() => {
 }
 .player audio {
     flex: 1;
-    min-width: 300px;
+    min-width: 0;
     height: 2rem;
+}
+.player-error {
+    flex: 1;
+    text-align: center;
 }
 .player button {
     flex-shrink: 0;
 }
 
-/* closing fade out  */
+/* enter / leave  fade*/
 .player-enter-active,
 .player-leave-active {
     transition:

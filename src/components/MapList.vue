@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import MapRow from "./MapRow.vue";
-import type { BeatmapParsed } from "../composables/beatmap";
+import type { BeatmapParsed } from "../domain/beatmap";
 import { useDynamicList } from "../composables/useDynamicList.ts";
 
 const props = defineProps<{
@@ -29,7 +29,6 @@ const { visible, hasMore, sentinel } = useDynamicList(
     <ol class="map-list">
         <MapRow
             v-for="(r, i) in visible"
-            class="map-row"
             :key="r.key"
             :row="r"
             :eager="i < 6"
@@ -74,10 +73,6 @@ const { visible, hasMore, sentinel } = useDynamicList(
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0.7em;
-}
-.map-row {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 140px;
 }
 
 .map-list-end {

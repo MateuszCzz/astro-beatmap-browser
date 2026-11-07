@@ -80,7 +80,7 @@ export type BeatmapParsed = Readonly<
     }
 >;
 
-export function toParse(r: BeatmapRaw): BeatmapParsed {
+export function parseBeatmap(r: BeatmapRaw): BeatmapParsed {
     const { tag_1, tag_2, tag_3, tag_4, tag_5, ...rest } = r;
     return {
         ...rest,

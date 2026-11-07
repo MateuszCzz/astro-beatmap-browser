@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useFilters } from "../composables/useFilters";
-import { MODS, TIERS } from "../composables/beatmap";
-import type { ModId } from "../composables/beatmap";
+import { useFilter } from "../composables/useFilter";
+import { MODS, TIERS } from "../domain/beatmap";
+import type { ModId } from "../domain/beatmap";
 
-const { state, reset } = useFilters();
+const { state, reset } = useFilter();
 
 const MOD_BUTTONS = Object.entries(MODS).map(([id, label]) => ({
     id: Number(id) as ModId,

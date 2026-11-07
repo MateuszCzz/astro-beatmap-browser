@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from "vue";
+import {
+    TIP_ATTR,
+    TIP_SELECTOR,
+    splitTip,
+    tipPosition,
+    type Point,
+} from "../domain/tooltip";
 
-type Point = { x: number; y: number };
 type ShowOpts = { at?: Point; focus?: boolean; touch?: boolean };
-
-const EDGE = 8; // min distance from edges
-const GAP = 14; // cursor-tooltip gap
 
 const el = ref<HTMLElement | null>(null);
 const s = reactive({
@@ -20,61 +23,34 @@ let pos: Point | null = null;
 let focusShown = false; // keyboard focus
 let raf = 0; // pending frame, max one reposition per frame
 
-let tw = 0;
-let th = 0;
-let vw = 0;
-let vh = 0;
-
-const clamp = (v: number, lo: number, hi: number) =>
-    Math.max(lo, Math.min(v, hi));
+const size = { w: 0, h: 0 }; // tooltip size
+const view = { w: 0, h: 0 }; // viewport
 
 const tipOf = (e: Event): HTMLElement | null => {
     const t = e.target as Element | null;
-    return t?.closest ? t.closest<HTMLElement>("[data-tip]") : null;
+    return t?.closest ? t.closest<HTMLElement>(TIP_SELECTOR) : null;
 };
 
 // called on every pointermove
 function position(t: HTMLElement) {
-    let x: number;
-    let y: number;
-
-    if (pos) {
-        // centered below cursor; goes above when no room
-        x = pos.x - tw / 2;
-        y = pos.y + GAP;
-        if (y + th + EDGE > vh) y = pos.y - th - GAP;
-    } else {
-        // keyboard focus: centered on the element
-        const r = t.getBoundingClientRect();
-        x = r.left + r.width / 2 - tw / 2;
-        y = r.top - th - EDGE;
-        if (y < EDGE) y = r.bottom + EDGE;
-    }
-
-    x = clamp(x, EDGE, vw - tw - EDGE);
-    y = clamp(y, EDGE, vh - th - EDGE);
-
-    if (el.value)
-        el.value.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    if (!el.value) return;
+    const { x, y } = tipPosition(size, view, pos ?? t.getBoundingClientRect());
+    el.value.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
 }
 
 async function place(t: HTMLElement) {
-    const text = t.dataset.tip;
+    const text = t.getAttribute(TIP_ATTR);
     if (!text) return hide();
 
-    // new line split title/body
-    const nl = text.indexOf("\n");
-    s.title = nl < 0 ? "" : text.slice(0, nl);
-    s.body = text.slice(nl + 1);
-    s.on = true;
+    Object.assign(s, splitTip(text), { on: true });
 
     await nextTick();
     const tp = el.value;
     if (!tp || cur !== t) return; // hidden or moved on while waiting
-    tw = tp.offsetWidth;
-    th = tp.offsetHeight;
-    vw = document.documentElement.clientWidth;
-    vh = document.documentElement.clientHeight;
+    size.w = tp.offsetWidth;
+    size.h = tp.offsetHeight;
+    view.w = document.documentElement.clientWidth;
+    view.h = document.documentElement.clientHeight;
     position(t);
 }
 

@@ -1,11 +1,10 @@
 import { MODS, type BeatmapParsed } from "./beatmap";
-import { tip, type TipKey } from "./tooltip";
+import type { TipKey } from "./tooltip";
 
-// ready rebuild object
 export type Pill = Readonly<{
     key: PillKey;
     label: string;
-    attrs: Readonly<{ "data-tip": string; "data-pill": PillKey; style: string }>;
+    style: string;
 }>;
 
 type Def = { bg: string; fg: string; label?: string };
@@ -28,20 +27,16 @@ const PILLS = {
 export type PillKey = keyof typeof PILLS;
 const KEYS = Object.keys(PILLS) as PillKey[];
 
-const ATTRS = {} as Record<PillKey, Pill>;
+const BY_KEY = {} as Record<PillKey, Pill>;
 for (const k of KEYS) {
     const d: Def = PILLS[k];
-    ATTRS[k] = Object.freeze({
+    BY_KEY[k] = Object.freeze({
         key: k,
         label: d.label ?? k,
-        attrs: Object.freeze({
-            ...tip(k),
-            "data-pill": k,
-            style: `--pill-bg:${d.bg};--pill-fg:${d.fg}`,
-        }),
+        style: `--pill-bg:${d.bg};--pill-fg:${d.fg}`,
     });
 }
-Object.freeze(ATTRS);
+Object.freeze(BY_KEY);
 
 if (KEYS.length > 31) throw new Error("pill bitmask supports 31 pills");
 const BIT = Object.fromEntries(KEYS.map((k, i) => [k, 1 << i])) as Record<PillKey, number>;
@@ -53,10 +48,10 @@ const RULES: readonly ((r: BeatmapParsed) => number)[] = [
 
 const lists = new Map<number, readonly Pill[]>();
 
-export function pillsOf(r: BeatmapParsed): readonly Pill[] {
+export function pillsCreate(r: BeatmapParsed): readonly Pill[] {
     let mask = 0;
     for (const rule of RULES) mask |= rule(r);
     let list = lists.get(mask);
-    if (!list) lists.set(mask, (list = Object.freeze(KEYS.filter((k) => mask & BIT[k]).map((k) => ATTRS[k]))));
+    if (!list) lists.set(mask, (list = Object.freeze(KEYS.filter((k) => mask & BIT[k]).map((k) => BY_KEY[k]))));
     return list;
 }

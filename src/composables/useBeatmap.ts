@@ -1,6 +1,6 @@
 import { onScopeDispose, ref, shallowRef, watch, type Ref } from "vue";
-import { toParse, type BeatmapParsed, type BeatmapRaw, type Tier } from "./beatmap";
-import { fetchJson, type Split } from "./data";
+import { parseBeatmap, type BeatmapParsed, type BeatmapRaw, type Tier } from "../domain/beatmap";
+import { fetchJson, type Split } from "../domain/manifest";
 
 /**
  * beatmap data states:
@@ -12,20 +12,18 @@ import { fetchJson, type Split } from "./data";
 export type Phase = "loading" | "core" | "full" | "error";
 type Entry = { core: BeatmapParsed[]; all?: BeatmapParsed[] };
 
-export function useData(
+export function useBeatmap(
     tier: Ref<Tier>,
     files: Record<Tier, Split>,
 ) {
     const rows = shallowRef<BeatmapParsed[]>([]);
     const phase = ref<Phase>("loading");
     const restError = ref(false); // rest failed; core stays
-
-    // cache holds last used tier
     const cache = new Map<Tier, Entry>();
     let ctl: AbortController | undefined;
 
     async function fetchRows(file: string, signal: AbortSignal) {
-        return (await fetchJson<BeatmapRaw[]>(file, signal)).map(toParse);
+        return (await fetchJson<BeatmapRaw[]>(file, signal)).map(parseBeatmap);
     }
 
     // All data sorted in build script regular append rest-> core keeps record order

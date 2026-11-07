@@ -1,6 +1,6 @@
 import { computed, reactive, ref, watch } from "vue";
-import type { BeatmapParsed, ModId, Tier } from "./beatmap";
-import { DEFAULT_TIER } from "./data";
+import type { BeatmapParsed, ModId, Tier } from "../domain/beatmap";
+import { DEFAULT_TIER } from "../domain/manifest";
 
 export interface FilterState {
     tier: Tier;
@@ -55,4 +55,4 @@ function reset() {
     state.mod = [];
 }
 
-export const useFilters = () => ({ state, matcher, reset });
+export const useFilter = () => ({ state, matcher, reset });

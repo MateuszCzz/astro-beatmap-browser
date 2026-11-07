@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ratioFormat } from "../composables/rowDisplay";
+import { ratioFormat } from "../domain/display";
 
 defineProps<{ label: string; value: number }>();
 </script>

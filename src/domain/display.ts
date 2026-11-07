@@ -46,11 +46,12 @@ const SCORE_HIGH = [0xff, 0x66, 0xaa] as const;
 
 export type ScoreVars = { "--sc": string; "--g": string };
 
-const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+export const clamp = (v: number, lo: number, hi: number) =>
+    Math.max(lo, Math.min(v, hi));
 
 function computeScoreVars(v: number): ScoreVars {
-    const t = clamp01((v - SCORE.colorMin) / (SCORE.colorMax - SCORE.colorMin));
-    const tg = clamp01((v - SCORE.glowMin) / (SCORE.glowMax - SCORE.glowMin));
+    const t = clamp((v - SCORE.colorMin) / (SCORE.colorMax - SCORE.colorMin), 0, 1);
+    const tg = clamp((v - SCORE.glowMin) / (SCORE.glowMax - SCORE.glowMin), 0, 1);
 
     const [from, to, tt] = t < 0.5
         ? [SCORE_LOW, SCORE_MID, t * 2]
