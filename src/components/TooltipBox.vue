@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from "vue";
 import {
-    TIP_ATTR,
     TIP_SELECTOR,
+    readTip,
     splitTip,
     tipPosition,
     type Point,
@@ -39,7 +39,7 @@ function position(t: HTMLElement) {
 }
 
 async function place(t: HTMLElement) {
-    const text = t.getAttribute(TIP_ATTR);
+    const text = readTip(t);
     if (!text) return hide();
 
     Object.assign(s, splitTip(text), { on: true });

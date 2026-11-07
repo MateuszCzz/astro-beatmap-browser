@@ -1,7 +1,8 @@
 import { clamp } from "./display";
 
 export const TIP_ATTR = "data-tip";
-export const TIP_SELECTOR = `[${TIP_ATTR}]`;
+export const TIP_LAZY_ATTR = "data-tip-lazy";
+export const TIP_SELECTOR = `[${TIP_ATTR}],[${TIP_LAZY_ATTR}]`;
 
 export type TipAttrs = Readonly<Record<typeof TIP_ATTR, string>>;
 
@@ -18,6 +19,46 @@ export function splitTip(text: string): { title: string; body: string } {
 
 export const refreshTip = (el: Element) =>
     el.dispatchEvent(new Event("tiprefresh", { bubbles: true }));
+
+const squash = (s: string | null) => (s ?? "").replace(/\s+/g, " ").trim();
+
+// dynamic tip for truncate strings; title, artist; diff, mapper 
+function foldedTip(el: HTMLElement): string | null {
+    const kids = el.children;
+    let cut = false;
+    for (let i = 0; i < kids.length && !cut; i++) {
+        cut = kids[i].scrollWidth > kids[i].clientWidth;
+    }
+    if (!cut) return null;
+
+    const [first, ...rest] = Array.from(kids, (k) => squash(k.textContent));
+    return rest.length ? tipText(first, rest.join(" ")) : first;
+}
+
+const RESOLVERS = { folded: foldedTip } satisfies Record<
+    string,
+    (el: HTMLElement) => string | null
+>;
+
+export type LazyKind = keyof typeof RESOLVERS;
+export type LazyAttrs = Readonly<Record<typeof TIP_LAZY_ATTR, LazyKind>>;
+
+const LAZY_ATTRS = Object.fromEntries(
+    (Object.keys(RESOLVERS) as LazyKind[]).map((k) => [
+        k,
+        Object.freeze({ [TIP_LAZY_ATTR]: k }),
+    ]),
+) as Record<LazyKind, LazyAttrs>;
+
+export const tipLazy = (kind: LazyKind): LazyAttrs => LAZY_ATTRS[kind];
+
+// what to show; text att or hit resolver for dynamic
+export function readTip(el: HTMLElement): string | null {
+    const stored = el.getAttribute(TIP_ATTR);
+    if (stored !== null) return stored;
+    const kind = el.getAttribute(TIP_LAZY_ATTR) as LazyKind | null;
+    return kind ? (RESOLVERS[kind]?.(el) ?? null) : null;
+}
 
 const TIP_EDGE = 8; // min distance from viewport edges
 const TIP_GAP = 14; // cursor to tooltip gap

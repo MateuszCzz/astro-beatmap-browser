@@ -10,7 +10,7 @@ import {
     ratioFormat,
 } from "../domain/display.ts";
 import { GENRES, LANGUAGES, type BeatmapParsed } from "../domain/beatmap";
-import { tip } from "../domain/tooltip";
+import { tip, tipLazy } from "../domain/tooltip";
 import { pillsCreate } from "../domain/pill.ts";
 import { useAudio } from "../composables/useAudio.ts";
 import { useLookup } from "../composables/useLookup.ts";
@@ -120,7 +120,7 @@ const tags = computed(() =>
             <div class="top">
                 <!-- main info -->
                 <div class="info">
-                    <div class="title">
+                    <div class="title" v-bind="tipLazy('folded')">
                         <a
                             :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
                             target="_blank"
@@ -129,7 +129,7 @@ const tags = computed(() =>
                         >
                         <span>{{ row.artist }}</span>
                     </div>
-                    <div class="diff">
+                    <div class="diff" v-bind="tipLazy('folded')">
                         <a
                             :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
                             target="_blank"
