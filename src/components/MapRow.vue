@@ -8,6 +8,7 @@ import {
     lengthFormat,
     decimalFormat,
     ratioFormat,
+    aimSpeedScale,
 } from "../domain/display.ts";
 import { GENRES, LANGUAGES, type BeatmapParsed } from "../domain/beatmap";
 import { tip, tipLazy, tipAttrs, tipText } from "../domain/tooltip";
@@ -37,6 +38,8 @@ async function copyId() {
 }
 // gen or take by mask already done pills
 const pills = computed(() => pillsCreate(props.row));
+
+const aim = computed(() => aimSpeedScale(props.row.aim_speed_ratio));
 
 // empty stringed in look up means deleted account
 const mapper = computed(
@@ -181,7 +184,7 @@ const hiddenTagsTip = computed(() => {
                         <small>BPM</small> <b>{{ row.bpm }}</b>
                     </div>
                     <div class="stat" data-fold v-bind="tip('top25')">
-                        <small>TOP25 RATE</small
+                        <small>TOP25<span class="sfx"> RATE</span></small
                         ><b>{{ ratioFormat(row.profile_top_25_ratio) }}</b>
                     </div>
 
@@ -196,8 +199,17 @@ const hiddenTagsTip = computed(() => {
                         <small>OD</small> <b>{{ decimalFormat(row.od) }}</b>
                     </div>
                     <div class="stat" data-fold v-bind="tip('hd')">
-                        <small>HD USAGE</small>
+                        <small>HD<span class="sfx"> USAGE</span></small>
                         <b>{{ ratioFormat(row.hidden_ratio) }}</b>
+                    </div>
+                </div>
+
+                <div class="aim_speed_split">
+                    <div class="stat spacing" v-bind="tip('aimbias')">
+                        <small>Spacing</small><b>{{ aim.spacing }}%</b>
+                    </div>
+                    <div class="stat density" v-bind="tip('aimbias')">
+                        <small>Density</small><b>{{ aim.density }}%</b>
                     </div>
                 </div>
 
@@ -281,7 +293,7 @@ const hiddenTagsTip = computed(() => {
     contain-intrinsic-size: auto 140px;
     overflow-clip-margin: 16px;
     display: flex;
-    height: 140px;
+    flex-wrap: wrap;
     line-height: 1.25;
     list-style: none;
     background: var(--color-surface);
@@ -406,6 +418,7 @@ a {
     min-width: 0;
     display: flex;
     flex-direction: column;
+    height: 138px;
 }
 .top {
     flex: 1;
@@ -557,7 +570,6 @@ a {
 }
 .score small {
     margin-bottom: 3px;
-    transform: translate(3px, -3px);
     font-size: 11px;
     font-weight: 500;
     line-height: 1.25;
@@ -643,6 +655,10 @@ a {
     color: var(--gain);
 }
 
+.peak b {
+    color: var(--peak);
+}
+
 .gains b span {
     font-size: 12px;
 }
@@ -653,6 +669,11 @@ a {
     align-items: center;
 }
 
+.aim_speed_split {
+    display: none;
+}
+
+/* semi long view */
 @container row (max-width: 1200px) {
     .rings {
         display: none;
@@ -664,7 +685,85 @@ a {
         grid-template-columns: 80px 80px 56px 80px;
     }
 }
-/* #TODO tablet and mobile views */
+
+/* tablet/mobile view */
+@container row (max-width: 1050px) {
+    .sfx,
+    .bar {
+        display: none;
+    }
+}
+
+/* tablet view */
+@container row (535px < width <= 1050px) {
+    .cover {
+        width: clamp(112px, 13cqw, 140px);
+    }
+    .actions .cover-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .body {
+        height: auto;
+    }
+
+    .top {
+        flex: none;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: minmax(68px, auto);
+        grid-template-areas:
+            "info info info info score   score"
+            ".    .    .    .    spacing gain"
+            ".    .    .    .    density peak";
+        align-items: center;
+        gap: 9px 16px;
+        padding: 4px 20px 10px 20px;
+    }
+
+    .stats,
+    .aim_speed_split,
+    .payoff,
+    .gains {
+        display: contents;
+    }
+
+    .info {
+        grid-area: info;
+        padding-right: 20px;
+    }
+    .score {
+        grid-area: score;
+        font-size: 60px;
+    }
+    .spacing {
+        grid-area: spacing;
+    }
+    .density {
+        grid-area: density;
+    }
+    .gain {
+        grid-area: gain;
+    }
+    .peak {
+        grid-area: peak;
+    }
+
+    .foot {
+        padding-right: 20px;
+    }
+    .tags {
+        padding-right: 0;
+    }
+}
+
+/* TODO: below 550px mobile required */
+@container row (max-width: 550px) {
+    .top {
+        background-color: brown !important;
+    }
+}
 
 @media (prefers-reduced-motion: reduce) {
     .cover img,

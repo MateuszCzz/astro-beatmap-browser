@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { clamp } from "../domain/display";
+import { clamp, aimSpeedScale } from "../domain/display";
 
 const props = defineProps<{ ratio: number }>();
-
-// brackets scale; below and above scores set to 0 and 100
-const RATIO_MIN = 3500;
-const RATIO_MAX = 7500;
 
 // on which % aim leads color max
 const LEAD_COLOR_MAX = 75;
 
 const bar = computed(() => {
-    const share = ((props.ratio - RATIO_MIN) * 100) / (RATIO_MAX - RATIO_MIN);
-    const spacing = Math.round(clamp(share, 0, 100));
-    const density = 100 - spacing;
+    const { spacing, density } = aimSpeedScale(props.ratio);
     const leadPct = Math.max(spacing, density);
 
     return {

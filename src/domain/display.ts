@@ -77,3 +77,14 @@ export const bigIntFormat = (score: number) => localFormater.format(score);
 export const lengthFormat = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;// sec to min:sec helper
 export const ratioFormat = (ratio: number) => `${Math.round(ratio / 10) / 10}%`;
 export const decimalFormat = (dec: number) => `${dec / 100}`;
+
+// aim_speed_ratio scale to 0 100 from aim/aim+speed, with set min max 
+export const RATIO_MIN = 3500;
+export const RATIO_MAX = 7500;
+
+export function aimSpeedScale(ratio: number) {
+    const share = ((ratio - RATIO_MIN) * 100) / (RATIO_MAX - RATIO_MIN);
+    const spacing = Math.round(clamp(share, 0, 100));
+
+    return { spacing, density: 100 - spacing };
+}
