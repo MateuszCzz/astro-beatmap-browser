@@ -63,11 +63,17 @@ const hiddenTagsTip = computed(() => {
     <li class="map-row">
         <!-- cover -->
         <div class="cover">
-            <img
-                :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/list.jpg`"
-                alt=""
-                :loading="eager ? 'eager' : 'lazy'"
-            />
+            <picture>
+                <source
+                    media="(max-width: 642.1px)"
+                    :srcset="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card.jpg 1x, https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card@2x.jpg 2x`"
+                />
+                <img
+                    :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/list.jpg`"
+                    alt=""
+                    :loading="eager ? 'eager' : 'lazy'"
+                />
+            </picture>
             <!--  pills  -->
             <div class="pills">
                 <span
@@ -758,10 +764,199 @@ a {
     }
 }
 
-/* TODO: below 550px mobile required */
-@container row (max-width: 550px) {
-    .top {
-        background-color: brown !important;
+/* mobile view */
+@container row (max-width: 535px) {
+    /* cover banner */
+    .cover {
+        flex: 0 0 100%;
+        height: 44px;
+        border-right: 0;
+        border-radius: 17px 17px 0 0;
+    }
+    .pills {
+        left: -4px;
+        top: -11px;
+        z-index: 1;
+        gap: 6px;
+    }
+    .pill {
+        padding: 2px 9px;
+        font-size: 12px;
+        line-height: 15px;
+        box-shadow: 0 0 0 2px var(--color-bg);
+    }
+
+    .play {
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        color: rgba(255, 255, 255, 0.88);
+    }
+    .play:active {
+        transform: none;
+    }
+    .play:active svg {
+        transform: scale(0.9);
+    }
+    .play svg {
+        width: 24px;
+        height: 24px;
+    }
+    .play__tri {
+        margin-left: 2px;
+    }
+
+    .actions {
+        top: 0;
+        right: 2px;
+        bottom: auto;
+        left: auto;
+        gap: 0;
+    }
+    .actions .cover-btn {
+        width: 44px;
+        height: 44px;
+        color: #fff;
+    }
+    .actions svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* body grid */
+    .body {
+        flex: 1 0 100%;
+        height: auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "info  score"
+            "meta  gains"
+            "stats stats"
+            "tags  tags";
+        column-gap: 10px;
+        padding: 14px;
+    }
+    .top,
+    .foot,
+    .payoff {
+        display: contents;
+    }
+
+    /* row 1 title block + score */
+    .info {
+        grid-area: info;
+        padding-right: 0;
+        gap: 5px;
+    }
+    .title {
+        column-gap: 6px;
+        font-size: 17px;
+    }
+    .title span {
+        font-size: 12px;
+    }
+    .diff {
+        font-size: 14px;
+    }
+    .diff small {
+        font-size: 12px;
+    }
+    .score {
+        grid-area: score;
+        align-self: center;
+        font-size: 38px;
+        line-height: 1.05;
+    }
+    .score small {
+        display: none;
+    }
+
+    /* row 2 genre / language / year + pp numbers */
+    .meta {
+        grid-area: meta;
+        align-self: center;
+        min-width: 0;
+        margin-top: 8px;
+        padding: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 12px;
+        color: color-mix(in srgb, var(--color-text) 25%, var(--gray));
+    }
+    .meta span + span::before {
+        content: none;
+    }
+    .meta span + span {
+        margin-left: 10px;
+    }
+    .gains {
+        grid-area: gains;
+        align-self: center;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 10px;
+        margin-top: 8px;
+    }
+    .gains small {
+        display: none;
+    }
+    .gains b {
+        font-size: 15px;
+        line-height: 17px;
+    }
+    .gains b span {
+        font-size: 11px;
+    }
+
+    /* row 3 five columns */
+    .stats,
+    .aim_speed_split {
+        grid-area: stats;
+        margin: 12px 0 0;
+        padding: 12px 0 0;
+        border: 0;
+        border-top: 1px solid var(--line);
+    }
+    .stats {
+        width: 80%;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px 0;
+    }
+    .aim_speed_split {
+        width: 20%;
+        justify-self: end;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .stat small {
+        font-size: 10px;
+    }
+    .stat b {
+        font-size: 14px;
+    }
+    .sr-pill {
+        font-size: 14px;
+    }
+
+    /* row 4 tags */
+    .tags {
+        grid-area: tags;
+        height: auto;
+        margin: 14px -14px -14px;
+        padding: 10px 14px;
+        background: var(--bar-bg);
+        border-top: 1px solid var(--line);
+        border-left: 0;
+        border-radius: 0 0 17px 17px;
+    }
+}
+
+/* placeholder height for off-screen rows */
+@media (max-width: 625.1px) {
+    .map-row {
+        contain-intrinsic-size: auto 283px;
     }
 }
 
