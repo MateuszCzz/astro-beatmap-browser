@@ -736,6 +736,10 @@ a {
 
 /* tablet view */
 @container row (535px < width <= 1050px) {
+    .card {
+        contain-intrinsic-size: auto 214.5px;
+    }
+
     .cover {
         width: clamp(112px, 13cqw, 140px);
     }
