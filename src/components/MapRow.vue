@@ -61,8 +61,21 @@ const hiddenTagsTip = computed(() => {
 
 <template>
     <li class="map-row">
-        <!-- cover -->
-        <div class="cover">
+        <!-- pills -->
+        <div class="pills">
+            <span
+                v-for="p in pills"
+                :key="p.key"
+                v-bind="tip(p.key)"
+                :style="p.style"
+                class="pill"
+                >{{ p.label }}</span
+            >
+        </div>
+
+        <div class="card">
+            <!-- cover -->
+            <div class="cover">
             <picture>
                 <source
                     media="(max-width: 642.1px)"
@@ -74,217 +87,209 @@ const hiddenTagsTip = computed(() => {
                     :loading="eager ? 'eager' : 'lazy'"
                 />
             </picture>
-            <!--  pills  -->
-            <div class="pills">
-                <span
-                    v-for="p in pills"
-                    :key="p.key"
-                    v-bind="tip(p.key)"
-                    :style="p.style"
-                    class="pill"
-                    >{{ p.label }}</span
-                >
-            </div>
-            <!-- action buttons -->
-            <button
-                class="cover-btn play"
-                type="button"
-                @click="toggle(row.mapset_id)"
-            >
-                <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="6.5" y="5" width="4" height="14" rx="1.2" />
-                    <rect x="13.5" y="5" width="4" height="14" rx="1.2" />
-                </svg>
-                <svg
-                    v-else
-                    class="play__tri"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path d="M7 4.5v15l13-7.5z" />
-                </svg>
-            </button>
-            <div class="actions">
+                <!-- action buttons -->
                 <button
-                    v-bind="tip('copy')"
-                    class="cover-btn"
+                    class="cover-btn play"
                     type="button"
-                    aria-label="Copy difficulty ID"
-                    @click="copyId"
+                    @click="toggle(row.mapset_id)"
                 >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <rect x="9" y="9" width="11" height="11" rx="2" />
-                        <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+                    <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="6.5" y="5" width="4" height="14" rx="1.2" />
+                        <rect x="13.5" y="5" width="4" height="14" rx="1.2" />
+                    </svg>
+                    <svg
+                        v-else
+                        class="play__tri"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M7 4.5v15l13-7.5z" />
                     </svg>
                 </button>
-                <a
-                    v-bind="tip('dl')"
-                    class="cover-btn"
-                    :href="`osu://b/${row.difficulty_id}`"
-                    rel="noopener"
-                    aria-label="Open in game"
-                >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M14 4h6v6" />
-                        <path d="M20 4l-9 9" />
-                        <path
-                            d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"
-                        />
-                    </svg>
-                </a>
+                <div class="actions">
+                    <button
+                        v-bind="tip('copy')"
+                        class="cover-btn"
+                        type="button"
+                        aria-label="Copy difficulty ID"
+                        @click="copyId"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                            <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+                        </svg>
+                    </button>
+                    <a
+                        v-bind="tip('dl')"
+                        class="cover-btn"
+                        :href="`osu://b/${row.difficulty_id}`"
+                        rel="noopener"
+                        aria-label="Open in game"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M14 4h6v6" />
+                            <path d="M20 4l-9 9" />
+                            <path
+                                d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"
+                            />
+                        </svg>
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="body">
-            <div class="top">
-                <!-- main info -->
-                <div class="info">
-                    <div class="title" v-bind="tipLazy('folded')">
-                        <a
-                            :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
-                            target="_blank"
-                            rel="noopener"
-                            >{{ row.title }}</a
-                        >
-                        <span>{{ row.artist }}</span>
-                    </div>
-                    <div class="diff" v-bind="tipLazy('folded')">
-                        <a
-                            :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
-                            target="_blank"
-                            rel="noopener"
-                            >{{ row.diff }}</a
-                        >
-                        <small>
-                            by
+            <div class="body">
+                <div class="top">
+                    <!-- main info -->
+                    <div class="info">
+                        <div class="title" v-bind="tipLazy('folded')">
                             <a
-                                :href="`https://osu.ppy.sh/users/${row.mapper_id}`"
+                                :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
                                 target="_blank"
                                 rel="noopener"
-                                >{{ mapper }}</a
+                                >{{ row.title }}</a
                             >
-                        </small>
+                            <span>{{ row.artist }}</span>
+                        </div>
+                        <div class="diff" v-bind="tipLazy('folded')">
+                            <a
+                                :href="`https://osu.ppy.sh/b/${row.difficulty_id}`"
+                                target="_blank"
+                                rel="noopener"
+                                >{{ row.diff }}</a
+                            >
+                            <small>
+                                by
+                                <a
+                                    :href="`https://osu.ppy.sh/users/${row.mapper_id}`"
+                                    target="_blank"
+                                    rel="noopener"
+                                    >{{ mapper }}</a
+                                >
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- stats grid -->
+                    <div class="stats">
+                        <div class="stat" v-bind="tip('sr')">
+                            <small>SR</small>
+                            <span
+                                class="sr-pill"
+                                :style="{
+                                    '--sr-bg': srColor(row.sr),
+                                    '--sr-fg':
+                                        row.sr >= 650 ? 'var(--gold)' : '#000',
+                                }"
+                                >{{ srFormat(row.sr) }}</span
+                            >
+                        </div>
+                        <!-- row 1 -->
+                        <div class="stat" v-bind="tip('length')">
+                            <small>LENGTH</small>
+                            <b>{{ lengthFormat(row.length) }}</b>
+                        </div>
+                        <div class="stat" v-bind="tip('bpm')">
+                            <small>BPM</small> <b>{{ row.bpm }}</b>
+                        </div>
+                        <div class="stat" data-fold v-bind="tip('top25')">
+                            <small>TOP25<span class="sfx"> RATE</span></small
+                            ><b>{{ ratioFormat(row.profile_top_25_ratio) }}</b>
+                        </div>
+
+                        <!-- row 2 -->
+                        <div class="stat" v-bind="tip('cs')">
+                            <small>CS</small> <b>{{ decimalFormat(row.cs) }}</b>
+                        </div>
+                        <div class="stat" v-bind="tip('ar')">
+                            <small>AR</small> <b>{{ decimalFormat(row.ar) }}</b>
+                        </div>
+                        <div class="stat" v-bind="tip('od')">
+                            <small>OD</small> <b>{{ decimalFormat(row.od) }}</b>
+                        </div>
+                        <div class="stat" data-fold v-bind="tip('hd')">
+                            <small>HD<span class="sfx"> USAGE</span></small>
+                            <b>{{ ratioFormat(row.hidden_ratio) }}</b>
+                        </div>
+                    </div>
+
+                    <div class="aim_speed_split">
+                        <div class="stat spacing" v-bind="tip('aimbias')">
+                            <small>Spacing</small><b>{{ aim.spacing }}%</b>
+                        </div>
+                        <div class="stat density" v-bind="tip('aimbias')">
+                            <small>Density</small><b>{{ aim.density }}%</b>
+                        </div>
+                    </div>
+
+                    <!-- ratio rings -->
+                    <div class="rings">
+                        <RatioRing
+                            label="TOP25 RATE"
+                            :value="row.profile_top_25_ratio"
+                            style="--ring-color: var(--gold)"
+                            v-bind="tip('top25')"
+                        />
+                        <RatioRing
+                            label="HD USAGE"
+                            :value="row.hidden_ratio"
+                            style="--ring-color: var(--blue)"
+                            v-bind="tip('hd')"
+                        />
+                    </div>
+
+                    <!-- pp data -->
+                    <div class="payoff" :style="scoreVars(row.score)">
+                        <div class="gains">
+                            <div class="stat gain" v-bind="tip('avg')">
+                                <small>NET GAIN</small>
+                                <b
+                                    >+{{ bigIntFormat(row.median_pp_gain)
+                                    }}<span> pp</span></b
+                                >
+                            </div>
+                            <div class="stat peak" v-bind="tip('max')">
+                                <small>MAX PP</small>
+                                <b
+                                    >{{ bigIntFormat(row.max_pp)
+                                    }}<span> pp</span></b
+                                >
+                            </div>
+                        </div>
+                        <div class="score" v-bind="tip('score')">
+                            <small>SCORE</small>
+                            <span>{{ bigIntFormat(row.score) }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- stats grid -->
-                <div class="stats">
-                    <div class="stat" v-bind="tip('sr')">
-                        <small>SR</small>
+                <div class="foot">
+                    <!-- rest info -->
+                    <div class="meta">
+                        <span v-bind="tip('genre')">{{
+                            GENRES[row.genre_id] ?? row.genre_id
+                        }}</span>
+                        <span v-bind="tip('lang')">{{
+                            LANGUAGES[row.language_id] ?? row.language_id
+                        }}</span>
+                        <span v-bind="tip('year')">{{ row.year }}</span>
+                    </div>
+                    <!-- tags -->
+                    <div v-if="row.tags.length" :ref="bindTags" class="tags">
+                        <span v-for="t in shown" :key="t.id">{{
+                            t.label
+                        }}</span>
                         <span
-                            class="sr-pill"
-                            :style="{
-                                '--sr-bg': srColor(row.sr),
-                                '--sr-fg':
-                                    row.sr >= 650 ? 'var(--gold)' : '#000',
-                            }"
-                            >{{ srFormat(row.sr) }}</span
+                            v-if="rest.length"
+                            v-show="moreFits"
+                            class="more"
+                            v-bind="tipAttrs(hiddenTagsTip)"
+                            >+{{ rest.length }}</span
                         >
                     </div>
-                    <!-- row 1 -->
-                    <div class="stat" v-bind="tip('length')">
-                        <small>LENGTH</small>
-                        <b>{{ lengthFormat(row.length) }}</b>
+                    <!-- map style -->
+                    <div class="bar" v-bind="tip('aimbias')">
+                        <RatioBar :ratio="row.aim_speed_ratio" />
                     </div>
-                    <div class="stat" v-bind="tip('bpm')">
-                        <small>BPM</small> <b>{{ row.bpm }}</b>
-                    </div>
-                    <div class="stat" data-fold v-bind="tip('top25')">
-                        <small>TOP25<span class="sfx"> RATE</span></small
-                        ><b>{{ ratioFormat(row.profile_top_25_ratio) }}</b>
-                    </div>
-
-                    <!-- row 2 -->
-                    <div class="stat" v-bind="tip('cs')">
-                        <small>CS</small> <b>{{ decimalFormat(row.cs) }}</b>
-                    </div>
-                    <div class="stat" v-bind="tip('ar')">
-                        <small>AR</small> <b>{{ decimalFormat(row.ar) }}</b>
-                    </div>
-                    <div class="stat" v-bind="tip('od')">
-                        <small>OD</small> <b>{{ decimalFormat(row.od) }}</b>
-                    </div>
-                    <div class="stat" data-fold v-bind="tip('hd')">
-                        <small>HD<span class="sfx"> USAGE</span></small>
-                        <b>{{ ratioFormat(row.hidden_ratio) }}</b>
-                    </div>
-                </div>
-
-                <div class="aim_speed_split">
-                    <div class="stat spacing" v-bind="tip('aimbias')">
-                        <small>Spacing</small><b>{{ aim.spacing }}%</b>
-                    </div>
-                    <div class="stat density" v-bind="tip('aimbias')">
-                        <small>Density</small><b>{{ aim.density }}%</b>
-                    </div>
-                </div>
-
-                <!-- ratio rings -->
-                <div class="rings">
-                    <RatioRing
-                        label="TOP25 RATE"
-                        :value="row.profile_top_25_ratio"
-                        style="--ring-color: var(--gold)"
-                        v-bind="tip('top25')"
-                    />
-                    <RatioRing
-                        label="HD USAGE"
-                        :value="row.hidden_ratio"
-                        style="--ring-color: var(--blue)"
-                        v-bind="tip('hd')"
-                    />
-                </div>
-
-                <!-- pp data -->
-                <div class="payoff" :style="scoreVars(row.score)">
-                    <div class="gains">
-                        <div class="stat gain" v-bind="tip('avg')">
-                            <small>NET GAIN</small>
-                            <b
-                                >+{{ bigIntFormat(row.median_pp_gain)
-                                }}<span> pp</span></b
-                            >
-                        </div>
-                        <div class="stat peak" v-bind="tip('max')">
-                            <small>MAX PP</small>
-                            <b
-                                >{{ bigIntFormat(row.max_pp)
-                                }}<span> pp</span></b
-                            >
-                        </div>
-                    </div>
-                    <div class="score" v-bind="tip('score')">
-                        <small>SCORE</small>
-                        <span>{{ bigIntFormat(row.score) }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="foot">
-                <!-- rest info -->
-                <div class="meta">
-                    <span v-bind="tip('genre')">{{
-                        GENRES[row.genre_id] ?? row.genre_id
-                    }}</span>
-                    <span v-bind="tip('lang')">{{
-                        LANGUAGES[row.language_id] ?? row.language_id
-                    }}</span>
-                    <span v-bind="tip('year')">{{ row.year }}</span>
-                </div>
-                <!-- tags -->
-                <div v-if="row.tags.length" :ref="bindTags" class="tags">
-                    <span v-for="t in shown" :key="t.id">{{ t.label }}</span>
-                    <span
-                        v-if="rest.length"
-                        v-show="moreFits"
-                        class="more"
-                        v-bind="tipAttrs(hiddenTagsTip)"
-                        >+{{ rest.length }}</span
-                    >
-                </div>
-                <!-- map style -->
-                <div class="bar" v-bind="tip('aimbias')">
-                    <RatioBar :ratio="row.aim_speed_ratio" />
                 </div>
             </div>
         </div>
@@ -292,22 +297,28 @@ const hiddenTagsTip = computed(() => {
 </template>
 
 <style scoped>
+/* now whole row wrap */
 .map-row {
     --line: var(--color-border);
     container: row / inline-size;
-    content-visibility: auto;
-    contain-intrinsic-size: auto 140px;
-    overflow-clip-margin: 16px;
-    display: flex;
-    flex-wrap: wrap;
+    position: relative;
+    isolation: isolate;
     line-height: 1.25;
     list-style: none;
-    background: var(--color-surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
     color: var(--color-text);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+}
+
+/* new map row */
+.card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 140px;
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--color-surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
 }
 
 /* links  */
@@ -347,8 +358,9 @@ a {
 /* pills */
 .pills {
     position: absolute;
-    left: -6px;
-    top: -6px;
+    z-index: 1;
+    left: -5px;
+    top: -8px;
     display: flex;
     gap: 8px;
 }
@@ -766,6 +778,11 @@ a {
 
 /* mobile view */
 @container row (max-width: 535px) {
+    /* placeholder height for off-screen rows */
+    .card {
+        contain-intrinsic-size: auto 283px;
+    }
+
     /* cover banner */
     .cover {
         flex: 0 0 100%;
@@ -774,9 +791,8 @@ a {
         border-radius: 17px 17px 0 0;
     }
     .pills {
-        left: -4px;
-        top: -11px;
-        z-index: 1;
+        left: -3px;
+        top: -10px;
         gap: 6px;
     }
     .pill {
@@ -950,13 +966,6 @@ a {
         border-top: 1px solid var(--line);
         border-left: 0;
         border-radius: 0 0 17px 17px;
-    }
-}
-
-/* placeholder height for off-screen rows */
-@media (max-width: 625.1px) {
-    .map-row {
-        contain-intrinsic-size: auto 283px;
     }
 }
 
