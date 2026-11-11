@@ -66,6 +66,15 @@ const { audio, isOpen, hasError, close, release } = useAudio();
     translate: 0 1rem;
 }
 
+@media (max-width: 365px) {
+    .player {
+        --scale: 0.8;
+        width: calc((100vw - 1.5rem) / var(--scale));
+        scale: var(--scale);
+        transform-origin: left bottom;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .player-enter-active,
     .player-leave-active {
