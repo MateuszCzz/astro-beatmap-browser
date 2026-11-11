@@ -41,6 +41,21 @@ const pills = computed(() => pillsCreate(props.row));
 
 const aim = computed(() => aimSpeedScale(props.row.aim_speed_ratio));
 
+// both cover variants are rendered, CSS shows exactly one (see .cover__banner)
+const covers = computed(() => {
+    const base = `https://assets.ppy.sh/beatmaps/${props.row.mapset_id}/covers`;
+    return {
+        square: {
+            src: `${base}/list.jpg`,
+            srcset: `${base}/list.jpg 1x, ${base}/list@2x.jpg 2x`,
+        },
+        banner: {
+            src: `${base}/card.jpg`,
+            srcset: `${base}/card.jpg 1x, ${base}/card@2x.jpg 2x`,
+        },
+    };
+});
+
 // empty stringed in look up means deleted account
 const mapper = computed(
     () => lookup("mappers", props.row.mapper_id) || "<deleted>",
@@ -76,17 +91,20 @@ const hiddenTagsTip = computed(() => {
         <div class="card">
             <!-- cover -->
             <div class="cover">
-            <picture>
-                <source
-                    media="(max-width: 642.1px)"
-                    :srcset="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card.jpg 1x, https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/card@2x.jpg 2x`"
-                />
                 <img
-                    :src="`https://assets.ppy.sh/beatmaps/${row.mapset_id}/covers/list.jpg`"
+                    class="cover__square"
+                    :src="covers.square.src"
+                    :srcset="covers.square.srcset"
                     alt=""
                     :loading="eager ? 'eager' : 'lazy'"
                 />
-            </picture>
+                <img
+                    class="cover__banner"
+                    :src="covers.banner.src"
+                    :srcset="covers.banner.srcset"
+                    alt=""
+                    loading="lazy"
+                />
                 <!-- action buttons -->
                 <button
                     class="cover-btn play"
@@ -353,6 +371,10 @@ a {
 }
 .cover svg {
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+/* mobile img. */
+.cover__banner {
+    display: none;
 }
 
 /* pills */
@@ -781,6 +803,14 @@ a {
     /* placeholder height for off-screen rows */
     .card {
         contain-intrinsic-size: auto 283px;
+    }
+
+    /* swap song img */
+    .cover__square {
+        display: none;
+    }
+    .cover__banner {
+        display: block;
     }
 
     /* cover banner */
