@@ -38,6 +38,8 @@ for (const k of KEYS) {
 }
 Object.freeze(BY_KEY);
 
+export const pillFor = (k: PillKey): Pill => BY_KEY[k];
+
 if (KEYS.length > 31) throw new Error("pill bitmask supports 31 pills");
 const BIT = Object.fromEntries(KEYS.map((k, i) => [k, 1 << i])) as Record<PillKey, number>;
 

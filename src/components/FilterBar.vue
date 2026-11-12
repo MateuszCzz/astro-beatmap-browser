@@ -2,15 +2,22 @@
 import { useFilter } from "../composables/useFilter";
 import { MODS, TIERS } from "../domain/beatmap";
 import type { ModId } from "../domain/beatmap";
+import { pillFor } from "../domain/pill";
+
+// get chips bg fg
+const TIER_BUTTONS = TIERS.map((t) => ({
+    tier: t,
+    style: pillFor(`T${t}`).style,
+}));
+
+const MOD_BUTTONS = Object.entries(MODS).map(([id, key]) => {
+    const pill = pillFor(key);
+    return { id: Number(id) as ModId, label: pill.label, style: pill.style };
+});
 
 defineProps<{ count?: number }>();
 
 const { state, reset } = useFilter();
-
-const MOD_BUTTONS = Object.entries(MODS).map(([id, label]) => ({
-    id: Number(id) as ModId,
-    label,
-}));
 
 function toggleMod(id: ModId) {
     state.mod = state.mod.includes(id)
@@ -52,6 +59,7 @@ function toggleMod(id: ModId) {
                 :key="m.id"
                 type="button"
                 class="chip"
+                :style="m.style"
                 :aria-pressed="state.mod.includes(m.id)"
                 @click="toggleMod(m.id)"
             >
@@ -151,9 +159,11 @@ legend {
     outline: 2px solid var(--text);
     outline-offset: 2px;
 }
-
 .chip[aria-pressed="true"],
 .chip:has(input:checked) {
+    color: var(--pill-fg);
+    background: var(--pill-bg);
+    border-color: var(--pill-fg);
     color: var(--bg);
     background: var(--text);
     border-color: var(--text);
