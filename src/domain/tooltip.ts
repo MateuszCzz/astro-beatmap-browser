@@ -122,6 +122,7 @@ export const TIPS = {
 
     // buttons
     copy: "Copy difficulty ID",
+    copied: "Copied! Paste in osu song select or web beatmap browser",
     dl: "Open in game (std osu!direct)",
 } as const;
 

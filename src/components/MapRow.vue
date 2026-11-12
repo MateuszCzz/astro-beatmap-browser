@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
     srColor,
     srFormat,
@@ -29,9 +29,14 @@ const { name: lookup } = useLookup();
 const playing = computed(() => playingId.value === props.row.mapset_id);
 
 // on click save id to clipboard
+const copied = ref(false);
+
 async function copyId() {
     try {
         await navigator.clipboard.writeText(String(props.row.difficulty_id));
+        copied.value = true;
+        // how long new svg
+        setTimeout(() => (copied.value = false), 2000);
     } catch {
         // clipboard blocked
     }
@@ -127,13 +132,20 @@ const hiddenTagsTip = computed(() => {
                 </button>
                 <div class="actions">
                     <button
-                        v-bind="tip('copy')"
+                        v-bind="copied ? tip('copied') : tip('copy')"
                         class="cover-btn"
                         type="button"
                         aria-label="Copy difficulty ID"
                         @click="copyId"
                     >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <svg
+                            v-if="copied"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path d="M5 12.5l4.5 4.5L19 7" />
+                        </svg>
+                        <svg v-else viewBox="0 0 24 24" aria-hidden="true">
                             <rect x="9" y="9" width="11" height="11" rx="2" />
                             <path d="M5 15V6a2 2 0 0 1 2-2h9" />
                         </svg>
