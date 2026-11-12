@@ -77,6 +77,25 @@ export const bigIntFormat = (score: number) => localFormater.format(score);
 export const lengthFormat = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;// sec to min:sec helper
 export const ratioFormat = (ratio: number) => `${Math.round(ratio / 10) / 10}%`;
 export const decimalFormat = (dec: number) => `${dec / 100}`;
+const rtf = new Intl.RelativeTimeFormat("en-US", { numeric: "always" });
+const loadedAt = new Date();
+export const relativeDateFormat = (date: number, now = loadedAt) => {
+    const y = Math.floor(date / 10000);
+    const m = Math.floor(date / 100) % 100;
+    const d = date % 100;
+
+    // whole calendar months elapsed
+    const months =
+        (now.getUTCFullYear() - y) * 12 +
+        (now.getUTCMonth() + 1 - m) -
+        (now.getUTCDate() < d ? 1 : 0);
+
+    if (months >= 12) return rtf.format(-Math.floor(months / 12), "year");
+    if (months >= 1) return rtf.format(-months, "month");
+
+    const days = Math.max(0, Math.floor((now.getTime() - Date.UTC(y, m - 1, d)) / 86_400_000));
+    return days === 0 ? "today" : rtf.format(-days, "day");
+};
 
 // aim_speed_ratio scale to 0 100 from aim/aim+speed, with set min max 
 export const RATIO_MIN = 3500;

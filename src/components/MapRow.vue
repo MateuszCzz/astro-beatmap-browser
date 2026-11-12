@@ -9,6 +9,7 @@ import {
     decimalFormat,
     ratioFormat,
     aimSpeedScale,
+    relativeDateFormat,
 } from "../domain/display.ts";
 import { GENRES, LANGUAGES, type BeatmapParsed } from "../domain/beatmap";
 import { tip, tipLazy, tipAttrs, tipText } from "../domain/tooltip";
@@ -306,7 +307,9 @@ const hiddenTagsTip = computed(() => {
                         <span v-bind="tip('lang')">{{
                             LANGUAGES[row.language_id] ?? row.language_id
                         }}</span>
-                        <span v-bind="tip('year')">{{ row.year }}</span>
+                        <span v-bind="tip('date')">{{
+                            relativeDateFormat(row.date)
+                        }}</span>
                     </div>
                     <!-- tags -->
                     <div v-if="row.tags.length" :ref="bindTags" class="tags">

@@ -56,7 +56,7 @@ export type BeatmapRaw = {
     od: number;
     cs: number;
     length: number;
-    year: number;
+    date: number;
     genre_id: number;
     language_id: number;
     hidden_ratio: number;

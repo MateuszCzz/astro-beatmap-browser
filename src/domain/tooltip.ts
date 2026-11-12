@@ -92,7 +92,7 @@ export const TIPS = {
 
     genre: "Genre",
     lang: "Language",
-    year: "Year ranked\nThe year this map was ranked.",
+    date: "Ranked Date\nThe date this map was ranked.",
 
     // pp params
     avg: "Median Gain\nMedian pp gained by players who managed to get this map into their top 100 scores, modified by play position.",
