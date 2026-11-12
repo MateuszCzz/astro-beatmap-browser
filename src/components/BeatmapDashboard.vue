@@ -32,20 +32,23 @@ const loading = computed(
 const filtered = computed(() => rows.value.filter(matcher.value));
 const queryKey = computed(() => [state.tier, matcher.value] as const);
 const failed = computed(() => phase.value === "error" || restError.value);
+
+const resultCount = computed(() =>
+    loading.value || phase.value === "error"
+        ? undefined
+        : filtered.value.length,
+);
 </script>
 
 <template>
     <div class="farm">
-        <FilterBar />
+        <FilterBar :count="resultCount" />
         <!-- placeholder while loading -->
         <div v-if="loading" class="skeleton" aria-hidden="true">
             <div v-for="n in 4" :key="n" class="skeleton-card" />
         </div>
 
         <template v-else>
-            <p v-if="phase !== 'error'" class="notice" aria-live="polite">
-                {{ filtered.length.toLocaleString() }} maps.
-            </p>
             <MapList
                 :rows="filtered"
                 :reset-key="queryKey"
@@ -73,11 +76,6 @@ const failed = computed(() => phase.value === "error" || restError.value);
     font-size: 0.8rem;
     line-height: 1.3;
     font-family: var(--font-sans);
-}
-
-.notice {
-    margin: 0 1.5em 1em;
-    color: var(--muted);
 }
 
 /* Loading placeholder */

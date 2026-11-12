@@ -3,6 +3,8 @@ import { useFilter } from "../composables/useFilter";
 import { MODS, TIERS } from "../domain/beatmap";
 import type { ModId } from "../domain/beatmap";
 
+defineProps<{ count?: number }>();
+
 const { state, reset } = useFilter();
 
 const MOD_BUTTONS = Object.entries(MODS).map(([id, label]) => ({
@@ -58,6 +60,11 @@ function toggleMod(id: ModId) {
         </fieldset>
 
         <div class="actions">
+            <p class="count" aria-live="polite">
+                <template v-if="count !== undefined">
+                    {{ count.toLocaleString() }} maps.
+                </template>
+            </p>
             <button type="button" @click="reset">Reset</button>
             <!-- filters apply live (search is debounced 150ms); kept as a no-op for layout -->
             <button type="button">Apply</button>
@@ -89,6 +96,15 @@ legend {
     float: left;
     min-width: 5em;
     padding: 0.3em 0;
+    color: var(--muted);
+}
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+.count {
+    margin: 0 auto 0 0;
     color: var(--muted);
 }
 .search {
