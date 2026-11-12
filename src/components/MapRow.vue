@@ -249,10 +249,10 @@ const hiddenTagsTip = computed(() => {
 
                     <div class="aim_speed_split">
                         <div class="stat spacing" v-bind="tip('aimbias')">
-                            <small>Spacing</small><b>{{ aim.spacing }}%</b>
+                            <small>SPACING</small><b>{{ aim.spacing }}%</b>
                         </div>
                         <div class="stat density" v-bind="tip('aimbias')">
-                            <small>Density</small><b>{{ aim.density }}%</b>
+                            <small>DENSITY</small><b>{{ aim.density }}%</b>
                         </div>
                     </div>
 
