@@ -21,14 +21,10 @@ const squash = (s: string | null) => (s ?? "").replace(/\s+/g, " ").trim();
 
 // dynamic tip for truncate strings; title, artist; diff, mapper 
 function foldedTip(el: HTMLElement): string | null {
-    const kids = el.children;
-    let cut = false;
-    for (let i = 0; i < kids.length && !cut; i++) {
-        cut = kids[i].scrollWidth > kids[i].clientWidth;
-    }
-    if (!cut) return null;
+    const kids = Array.from(el.children);
+    if (!kids.some((k) => k.scrollWidth > k.clientWidth)) return null;
 
-    const [first, ...rest] = Array.from(kids, (k) => squash(k.textContent));
+    const [first, ...rest] = kids.map((k) => squash(k.textContent));
     return rest.length ? tipText(first, rest.join(" ")) : first;
 }
 
@@ -64,23 +60,24 @@ export type Point = { x: number; y: number };
 type Size = { w: number; h: number };
 type Rect = { left: number; top: number; width: number; bottom: number };
 
-export function tipPosition(tip: Size, view: Size, at: Point | Rect): Point {
+export function tipPosition(box: Size, view: Size, at: Point | Rect): Point {
     let x: number;
     let y: number;
 
-    if ("x" in at) {
-        x = at.x - tip.w / 2;
-        y = at.y + TIP_GAP;
-        if (y + tip.h + TIP_EDGE > view.h) y = at.y - tip.h - TIP_GAP;
-    } else {
-        x = at.left + at.width / 2 - tip.w / 2;
-        y = at.top - tip.h - TIP_EDGE;
+    if ("width" in at) {
+        x = at.left + at.width / 2 - box.w / 2;
+        y = at.top - box.h - TIP_EDGE;
         if (y < TIP_EDGE) y = at.bottom + TIP_EDGE;
+    } else {
+        // cursor: below, flip above if no room
+        x = at.x - box.w / 2;
+        y = at.y + TIP_GAP;
+        if (y + box.h + TIP_EDGE > view.h) y = at.y - box.h - TIP_GAP;
     }
 
     return {
-        x: clamp(x, TIP_EDGE, view.w - tip.w - TIP_EDGE),
-        y: clamp(y, TIP_EDGE, view.h - tip.h - TIP_EDGE),
+        x: clamp(x, TIP_EDGE, view.w - box.w - TIP_EDGE),
+        y: clamp(y, TIP_EDGE, view.h - box.h - TIP_EDGE),
     };
 }
 
