@@ -29,31 +29,43 @@ function toggleMod(id: ModId) {
 <template>
     <form class="filters" @submit.prevent>
         <!-- text: string in artist, title or diff -->
-        <input
-            v-model="state.search"
-            class="search"
-            type="search"
-            placeholder="Search artist, title or difficulty"
-            aria-label="Search maps"
-        />
+        <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-4-4" />
+            </svg>
+            <input
+                v-model="state.search"
+                type="search"
+                placeholder="Search artist, title or difficulty"
+                aria-label="Search maps"
+            />
+        </label>
 
         <!-- tier 1–4 -->
-        <fieldset>
-            <legend>Tier</legend>
-            <label v-for="t in TIERS" :key="t" class="chip">
-                <input
-                    type="radio"
-                    name="tier"
-                    :value="t"
-                    v-model="state.tier"
-                />
-                {{ t }}
-            </label>
-        </fieldset>
+        <div class="group tier" role="radiogroup" aria-label="Tier">
+            <span class="label" aria-hidden="true">Tier</span>
+            <div class="segment">
+                <label
+                    v-for="t in TIER_BUTTONS"
+                    :key="t.tier"
+                    class="chip"
+                    :style="t.style"
+                >
+                    <input
+                        type="radio"
+                        name="tier"
+                        :value="t.tier"
+                        v-model="state.tier"
+                    />
+                    {{ t.tier }}
+                </label>
+            </div>
+        </div>
 
-        <!-- mods: NM / HR / DT / DTHR -->
-        <fieldset>
-            <legend>Mods</legend>
+        <!-- mods -->
+        <div class="group mods" role="group" aria-label="Mods">
+            <span class="label" aria-hidden="true">Mods</span>
             <button
                 v-for="m in MOD_BUTTONS"
                 :key="m.id"
@@ -65,64 +77,114 @@ function toggleMod(id: ModId) {
             >
                 {{ m.label }}
             </button>
-        </fieldset>
-
-        <div class="actions">
-            <p class="count" aria-live="polite">
-                <template v-if="count !== undefined">
-                    {{ count.toLocaleString() }} maps.
-                </template>
-            </p>
-            <button type="button" @click="reset">Reset</button>
-            <!-- filters apply live (search is debounced 150ms); kept as a no-op for layout -->
-            <button type="button">Apply</button>
         </div>
+
+        <!-- results count -->
+        <p class="count" aria-live="polite">
+            <template v-if="count !== undefined">
+                {{ count.toLocaleString() }} maps.
+            </template>
+        </p>
+
+        <!-- reset button -->
+        <button type="button" class="reset" @click="reset">Reset</button>
     </form>
 </template>
 
 <style scoped>
 .filters {
+    --line: var(--color-border);
+    --field: color-mix(in srgb, var(--color-surface), var(--color-bg));
+    --control-h: 2.25rem;
+    --segment-pad: 3px;
+    --segment-border: 1px;
+
+    --chip-h: calc(
+        var(--control-h) - 2 * (var(--segment-pad) + var(--segment-border))
+    );
+
     display: grid;
-    gap: 0.8em;
-    margin: 0 1.5em 1em;
-    padding: 1em;
-    background: var(--surface);
+    grid-template-columns: minmax(10rem, 1fr) auto auto;
+    grid-template-areas:
+        "search tier  mods"
+        "count  count reset";
+    align-items: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin: 0 var(--space-lg) var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-surface);
     border: 1px solid var(--line);
-    border-radius: 1em;
-    color: var(--text);
+    border-radius: 1rem;
+    color: var(--color-text);
 }
-fieldset {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4em;
-    margin: 0;
-    padding: 0;
-    border: 0;
+
+.tier {
+    grid-area: tier;
 }
-legend {
-    float: left;
-    min-width: 5em;
-    padding: 0.3em 0;
-    color: var(--muted);
+.mods {
+    grid-area: mods;
 }
-.actions {
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-}
-.count {
-    margin: 0 auto 0 0;
-    color: var(--muted);
-}
+
 .search {
-    width: 100%;
-    padding: 0.5em 0.8em;
-    font: inherit;
-    color: var(--text);
-    background: var(--surface-2);
+    grid-area: search;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    height: var(--control-h);
+    padding: 0 0.75rem;
+    color: var(--gray);
+    background: var(--field);
     border: 1px solid var(--line);
-    border-radius: 0.6em;
+    border-radius: 0.625rem;
+}
+.search svg {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.search input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    color: var(--color-text);
+    background: none;
+    border: 0;
+    outline: 0;
+}
+.search input::placeholder {
+    color: var(--gray);
+}
+.search:focus-within {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--gray);
+}
+
+.segment {
+    display: flex;
+    gap: 2px;
+    padding: var(--segment-pad);
+    background: var(--field);
+    border: var(--segment-border) solid var(--line);
+    border-radius: 999px;
 }
 
 .chip {
@@ -130,42 +192,75 @@ legend {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25em 0.8em;
+    height: var(--chip-h);
+    padding: 0 1rem;
     font: inherit;
-    line-height: 1.5;
-    color: var(--text);
-    text-align: center;
-    background: var(--surface-2);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-text);
+    background: var(--field);
     border: 1px solid var(--line);
     border-radius: 999px;
     cursor: pointer;
     transition:
-        background-color 120ms ease,
-        border-color 120ms ease,
-        color 120ms ease,
-        filter 120ms ease;
+        color var(--duration) ease,
+        border-color var(--duration) ease,
+        background-color var(--duration) ease,
+        box-shadow var(--duration) ease,
+        filter var(--duration) ease;
+}
+
+.segment .chip {
+    min-width: 2.25rem;
+    padding: 0 0.75rem;
+    border-color: transparent;
 }
 .chip input {
     position: absolute;
     inset: 0;
+    margin: 0;
     opacity: 0;
     cursor: pointer;
 }
 .chip:hover {
     filter: brightness(1.1);
 }
-.chip:focus-visible,
 .chip:has(input:focus-visible) {
-    outline: 2px solid var(--text);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
 }
 .chip[aria-pressed="true"],
 .chip:has(input:checked) {
     color: var(--pill-fg);
     background: var(--pill-bg);
-    border-color: var(--pill-fg);
-    color: var(--bg);
-    background: var(--text);
-    border-color: var(--text);
+    border-color: transparent;
+    box-shadow: 0 0 0 2px var(--pill-fg);
+}
+
+.count {
+    grid-area: count;
+    margin: 0;
+    color: var(--gray);
+}
+.reset {
+    grid-area: reset;
+    justify-self: end;
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    color: var(--gray);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+.reset:hover {
+    color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chip {
+        transition: none;
+    }
 }
 </style>
