@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, nextTick, onMounted, onBeforeUnmount } from "vue";
 import {
+    TIP_ATTR,
+    TIP_LAZY_ATTR,
     TIP_SELECTOR,
     readTip,
     splitTip,
@@ -25,6 +27,11 @@ let raf = 0; // pending frame, max one reposition per frame
 
 const size = { w: 0, h: 0 }; // tooltip size
 const view = { w: 0, h: 0 }; // viewport
+
+// re-render when element's tip changes
+const mo = new MutationObserver(() => {
+    if (cur) place(cur);
+});
 
 const tipOf = (e: Event): HTMLElement | null => {
     const t = e.target as Element | null;
@@ -55,6 +62,7 @@ async function place(t: HTMLElement) {
 }
 
 function hide() {
+    mo.disconnect();
     cancelAnimationFrame(raf);
     raf = 0;
     s.on = false;
@@ -69,6 +77,11 @@ function show(t: HTMLElement, opts: ShowOpts = {}) {
     focusShown = !!opts.focus;
     pos = opts.at ?? null;
     s.touch = !!opts.touch;
+    mo.disconnect();
+    mo.observe(t, {
+        attributes: true,
+        attributeFilter: [TIP_ATTR, TIP_LAZY_ATTR],
+    });
     place(t);
 }
 
@@ -114,11 +127,6 @@ const onFocusOut = (e: FocusEvent) => {
     if (focusShown && tipOf(e) === cur) hide();
 };
 
-// shown element text changed
-const onRefresh = (e: Event) => {
-    if (cur && cur === tipOf(e)) place(cur);
-};
-
 let ac: AbortController | null = null;
 
 onMounted(() => {
@@ -130,7 +138,6 @@ onMounted(() => {
     document.addEventListener("pointerup", onUp, { signal });
     document.addEventListener("focusin", onFocusIn, { signal });
     document.addEventListener("focusout", onFocusOut, { signal });
-    document.addEventListener("tiprefresh", onRefresh, { signal });
     window.addEventListener("scroll", hide, { capture: true, signal });
     window.addEventListener("resize", hide, { signal });
 });

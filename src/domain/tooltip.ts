@@ -17,9 +17,6 @@ export function splitTip(text: string): { title: string; body: string } {
         : { title: text.slice(0, nl), body: text.slice(nl + 1) };
 }
 
-export const refreshTip = (el: Element) =>
-    el.dispatchEvent(new Event("tiprefresh", { bubbles: true }));
-
 const squash = (s: string | null) => (s ?? "").replace(/\s+/g, " ").trim();
 
 // dynamic tip for truncate strings; title, artist; diff, mapper 
