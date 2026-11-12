@@ -101,14 +101,18 @@ const hiddenTagsTip = computed(() => {
                     :src="covers.square.src"
                     :srcset="covers.square.srcset"
                     alt=""
+                    decoding="async"
                     :loading="eager ? 'eager' : 'lazy'"
+                    :fetchpriority="eager ? 'high' : undefined"
                 />
                 <img
                     class="cover__banner"
                     :src="covers.banner.src"
                     :srcset="covers.banner.srcset"
                     alt=""
+                    decoding="async"
                     loading="lazy"
+                    :fetchpriority="eager ? 'high' : undefined"
                 />
                 <!-- action buttons -->
                 <button
