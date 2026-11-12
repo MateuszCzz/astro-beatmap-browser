@@ -850,7 +850,6 @@ a {
         padding: 2px 9px;
         font-size: 12px;
         line-height: 15px;
-        box-shadow: 0 0 0 2px var(--color-bg);
     }
 
     .play {
