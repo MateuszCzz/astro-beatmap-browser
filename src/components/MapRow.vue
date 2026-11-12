@@ -109,6 +109,7 @@ const hiddenTagsTip = computed(() => {
                 <button
                     class="cover-btn play"
                     type="button"
+                    :aria-label="`${playing ? 'Pause' : 'Play'} ${row.title}`"
                     @click="toggle(row.mapset_id)"
                 >
                     <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
