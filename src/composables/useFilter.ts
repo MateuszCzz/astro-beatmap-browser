@@ -31,6 +31,10 @@ watch(
     () => state.search,
     (v) => {
         clearTimeout(timer);
+        if (!v) {
+            appliedSearch.value = "";
+            return;
+        }
         timer = setTimeout(() => (appliedSearch.value = v), 150);
     },
 );
@@ -75,6 +79,8 @@ const matcher = computed(() => {
 
 function reset() {
     const { tier, ...rest } = defaults();
+    clearTimeout(timer);
+    appliedSearch.value = "";
     Object.assign(state, rest);
 }
 
