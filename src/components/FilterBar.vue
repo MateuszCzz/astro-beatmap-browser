@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import { GENRES, LANGUAGES, MODS, TIERS } from "../domain/beatmap";
 import type { ModId } from "../domain/beatmap";
 import { pillFor } from "../domain/pill";
@@ -22,6 +23,14 @@ defineProps<{ count?: number }>();
 const { state, reset } = useFilter();
 const { options, prefetch, name } = useLookup();
 
+const searchInput = ref<HTMLInputElement | null>(null);
+const searchActive = computed(() => !!state.search);
+
+function clearSearch() {
+    state.search = "";
+    searchInput.value?.focus();
+}
+
 function toggleMod(id: ModId) {
     state.mod = state.mod.includes(id)
         ? state.mod.filter((m) => m !== id)
@@ -44,17 +53,32 @@ const tagLabel = (id: number) => name("tags", id);
 <template>
     <form class="filters" @submit.prevent>
         <!-- text: string in artist, title or diff -->
-        <label class="search">
+        <label class="search" :class="{ active: searchActive }">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-4-4" />
             </svg>
             <input
+                ref="searchInput"
                 v-model="state.search"
                 type="search"
                 placeholder="Search artist, title or difficulty"
                 aria-label="Search maps"
+                @keydown.esc="
+                    searchActive && ($event.preventDefault(), clearSearch())
+                "
             />
+            <button
+                v-if="searchActive"
+                type="button"
+                class="clear"
+                aria-label="Clear search"
+                @click="clearSearch"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+            </button>
         </label>
 
         <!-- tier 1–4 -->
@@ -212,9 +236,38 @@ const tagLabel = (id: number) => name("tags", id);
 .search input::placeholder {
     color: var(--gray);
 }
-.search:focus-within {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.search:focus-within,
+.search.active {
+    border-color: var(--color-accent);
+}
+
+.clear {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    color: var(--gray);
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.clear svg {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+.clear:hover {
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 
 .group {
