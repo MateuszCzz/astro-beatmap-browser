@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useFilter } from "../composables/useFilter";
 import { GENRES, LANGUAGES, MODS, TIERS } from "../domain/beatmap";
 import type { ModId } from "../domain/beatmap";
 import { pillFor } from "../domain/pill";
+import { useFilter } from "../composables/useFilter";
+import { useLookup } from "../composables/useLookup";
 import MultiSelect from "./MultiSelect.vue";
 
 // get chips bg fg
@@ -19,6 +20,7 @@ const MOD_BUTTONS = Object.entries(MODS).map(([id, key]) => {
 defineProps<{ count?: number }>();
 
 const { state, reset } = useFilter();
+const { options, prefetch, name } = useLookup();
 
 function toggleMod(id: ModId) {
     state.mod = state.mod.includes(id)
@@ -34,6 +36,9 @@ const languageOptions = Object.entries(LANGUAGES).map(([id, label]) => ({
     id: Number(id),
     label,
 }));
+
+const mapperLabel = (id: number) => name("mappers", id);
+const tagLabel = (id: number) => name("tags", id);
 </script>
 
 <template>
@@ -91,6 +96,22 @@ const languageOptions = Object.entries(LANGUAGES).map(([id, label]) => ({
 
         <!-- multiselects -->
         <div class="selects">
+            <MultiSelect
+                v-model="state.tag"
+                :options="options.tags.value"
+                :resolve-label="tagLabel"
+                label="Tags"
+                :multiple="true"
+                @open="prefetch('tags')"
+            />
+            <MultiSelect
+                v-model="state.mapper"
+                :options="options.mappers.value"
+                :resolve-label="mapperLabel"
+                label="Mapper"
+                :multiple="true"
+                @open="prefetch('mappers')"
+            />
             <MultiSelect
                 v-model="state.genre"
                 :options="genreOptions"
