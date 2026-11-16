@@ -6,12 +6,16 @@ export interface FilterState {
     tier: Tier;
     search: string;
     mod: ModId[];
+    genre: number[];
+    language: number[];
 }
 
 const state = reactive<FilterState>({
     tier: DEFAULT_TIER,
     search: "",
     mod: [],
+    genre: [] as number[],
+    language: [] as number[],
 });
 
 const appliedSearch = ref("");
@@ -39,9 +43,13 @@ const haystack = (r: BeatmapParsed) => {
 const matcher = computed(() => {
     const terms = norm(appliedSearch.value).split(/\s+/).filter(Boolean);
     const mod = state.mod;
+    const genre = state.genre;
+    const language = state.language;
 
     return (r: BeatmapParsed): boolean => {
         if (mod.length && !mod.includes(r.mods)) return false;
+        if (genre.length && !genre.includes(r.genre_id)) return false;
+        if (language.length && !language.includes(r.language_id)) return false;
         if (terms.length) {
             const q = haystack(r);
             for (const t of terms) if (!q.includes(t)) return false;
@@ -53,6 +61,8 @@ const matcher = computed(() => {
 function reset() {
     state.search = "";
     state.mod = [];
+    state.genre = [];
+    state.language = [];
 }
 
 export const useFilter = () => ({ state, matcher, reset });

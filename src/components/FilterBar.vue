@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useFilter } from "../composables/useFilter";
-import { MODS, TIERS } from "../domain/beatmap";
+import { GENRES, LANGUAGES, MODS, TIERS } from "../domain/beatmap";
 import type { ModId } from "../domain/beatmap";
 import { pillFor } from "../domain/pill";
+import MultiSelect from "./MultiSelect.vue";
 
 // get chips bg fg
 const TIER_BUTTONS = TIERS.map((t) => ({
@@ -24,6 +25,15 @@ function toggleMod(id: ModId) {
         ? state.mod.filter((m) => m !== id)
         : [...state.mod, id];
 }
+
+const genreOptions = Object.entries(GENRES).map(([id, label]) => ({
+    id: Number(id),
+    label,
+}));
+const languageOptions = Object.entries(LANGUAGES).map(([id, label]) => ({
+    id: Number(id),
+    label,
+}));
 </script>
 
 <template>
@@ -79,6 +89,21 @@ function toggleMod(id: ModId) {
             </button>
         </div>
 
+        <!-- multiselects -->
+        <div class="selects">
+            <MultiSelect
+                v-model="state.genre"
+                :options="genreOptions"
+                label="Genre"
+                :multiple="true"
+            />
+            <MultiSelect
+                v-model="state.language"
+                :options="languageOptions"
+                label="Language"
+                :multiple="true"
+            />
+        </div>
         <!-- results count -->
         <p class="count" aria-live="polite">
             <template v-if="count !== undefined">
@@ -106,8 +131,9 @@ function toggleMod(id: ModId) {
     display: grid;
     grid-template-columns: minmax(10rem, 1fr) auto auto;
     grid-template-areas:
-        "search tier  mods"
-        "count  count reset";
+        "search  tier    mods"
+        "selects selects selects"
+        "count   count   reset";
     align-items: center;
     gap: var(--space-sm) var(--space-lg);
     margin: 0 var(--space-lg) var(--space-md);
@@ -118,6 +144,12 @@ function toggleMod(id: ModId) {
     color: var(--color-text);
 }
 
+.selects {
+    grid-area: selects;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+}
 .tier {
     grid-area: tier;
 }
