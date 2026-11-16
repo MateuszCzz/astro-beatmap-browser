@@ -1,7 +1,24 @@
-import { inject, onScopeDispose, provide, ref, shallowRef, type InjectionKey } from "vue";
+import {
+    computed,
+    inject,
+    onScopeDispose,
+    provide,
+    ref,
+    shallowRef,
+    type ComputedRef,
+    type InjectionKey,
+} from "vue";
 import { FILE_LOOKUPS, fetchJson, type FileLookup, type Split } from "../domain/manifest";
 
-type Table = Record<number, string>;
+type Entry = string | number | null | { username?: string | null; rank?: number };
+type Table = Record<number, Entry>;
+export type LookupOption = { id: number; label: string; rank: number };
+
+function parse(id: number | string, v: Entry | undefined): { label: string; rank: number } {
+    const obj = v !== null && typeof v === "object";
+    const label = String((obj ? v.username : v) ?? "").trim() || String(id);
+    return { label, rank: (obj && v.rank) || 0 };
+}
 
 export function createLookup(files: Record<FileLookup, Split>) {
     const tables = shallowRef(
@@ -24,7 +41,7 @@ export function createLookup(files: Record<FileLookup, Split>) {
     }
 
     // load main content
-    void Promise.all(FILE_LOOKUPS.map((k) => load(k, files[k].core))).then(
+    const coreDone = Promise.all(FILE_LOOKUPS.map((k) => load(k, files[k].core))).then(
         () => (ready.value = true),
     );
 
@@ -40,14 +57,30 @@ export function createLookup(files: Record<FileLookup, Split>) {
         const list = tables.value[kind];
         for (const table of list) {
             const found = table[id];
-            if (found !== undefined) return found;
+            if (found !== undefined) return parse(id, found).label;
         }
         if (list.length) void loadRest(kind);
         return String(id);
     }
 
+    // one list per kind core first
+    const options = Object.fromEntries(
+        FILE_LOOKUPS.map((k) => [
+            k,
+            computed(() =>
+                tables.value[k]
+                    .flatMap((t) =>
+                        Object.entries(t).map(([id, v]) => ({ id: Number(id), ...parse(id, v) })),
+                    )
+                    .sort((a, b) => b.rank - a.rank),
+            ),
+        ]),
+    ) as Record<FileLookup, ComputedRef<LookupOption[]>>;
+
+    const prefetch = (kind: FileLookup) => void coreDone.then(() => loadRest(kind));
+
     onScopeDispose(() => ctl.abort());
-    return { name, ready };
+    return { name, ready, options, prefetch };
 }
 
 const KEY: InjectionKey<ReturnType<typeof createLookup>> = Symbol("lookups");
