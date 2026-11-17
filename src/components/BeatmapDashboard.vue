@@ -4,6 +4,7 @@ import FilterBar from "./FilterBar.vue";
 import MapList from "./MapList.vue";
 import AudioPlayer from "./AudioPlayer.vue";
 import TooltipBox from "./TooltipBox.vue";
+import ScrollTopButton from "./ScrollTopButton.vue";
 import type { DataFiles } from "../domain/manifest";
 import { useBeatmap } from "../composables/useBeatmap.ts";
 import { provideLookups } from "../composables/useLookup.ts";
@@ -59,6 +60,7 @@ const resultCount = computed(() =>
         </template>
         <AudioPlayer />
         <TooltipBox />
+        <ScrollTopButton />
     </div>
 </template>
 
