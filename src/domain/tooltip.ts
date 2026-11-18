@@ -76,6 +76,15 @@ export const TIPS = {
     T3: "Tier 3\nBased on players ranked 10k – 100k",
     T4: "Tier 4\nBased on players ranked 100k – 500k",
 
+    // flags
+    HDF: "HD Friendly\nOften played with the Hidden mod.",
+    SPACED: "Spaced\npp comes mostly from the spacing between circles.",
+    DENSE: "Dense\npp comes mostly from the density of circles.",
+    UNI: "Universal\nA older map played across several tiers, usually with different mods.",
+    RS: "Rising Star\nA newer map already proving to be a reliable source of pp.",
+    TFAV: "Tier Favorite\nA tier-wide staple, appearing in players’ top plays more often than any other.",
+    FPACK: "Farm Pack\nPart of a set where other difficulties are farmable in this tier.",
+
     // buttons
     copy: "Copy difficulty ID",
     copied: "Copied! Paste in osu song select or web beatmap browser",

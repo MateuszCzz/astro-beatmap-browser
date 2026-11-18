@@ -1,4 +1,4 @@
-import { MODS, type BeatmapParsed } from "./beatmap";
+import { FLAGS, MODS, type BeatmapParsed, type FlagKey } from "./beatmap";
 import type { TipKey } from "./tooltip";
 
 export type Pill = Readonly<{
@@ -23,6 +23,43 @@ const PILLS = {
     DTHR: {
         bg: "linear-gradient(90deg, #ef4444 52.7%, #10d3ff 0)", fg: "#1a1a2e", label: "HRDT"
     },
+
+    // flags pills
+    SPACED: {
+        label: "Spaced",
+        bg: "#c96a6a",
+        fg: "#2E1511",
+    },
+    DENSE: {
+        label: "Dense",
+        bg: "#7B9ABF",
+        fg: "#0F1C26",
+    },
+    HDF: {
+        label: "HD-Friendly",
+        bg: "#6B7280",
+        fg: "#F3F4F6",
+    },
+    UNI: {
+        label: "Universal",
+        bg: "#6e926b",
+        fg: "#090e08",
+    },
+    RS: {
+        label: "Rising Star",
+        bg: "#bb7bd6",
+        fg: "#21082e",
+    },
+    TFAV: {
+        label: "Tier-Favorite",
+        bg: "#9d5c73",
+        fg: "#140005",
+    },
+    FPACK: {
+        label: "Farm Pack",
+        bg: "#D6B46B",
+        fg: "#2E2108",
+    },
 } satisfies Partial<Record<TipKey, Def>>;
 export type PillKey = keyof typeof PILLS;
 const KEYS = Object.keys(PILLS) as PillKey[];
@@ -43,9 +80,16 @@ export const pillFor = (k: PillKey): Pill => BY_KEY[k];
 if (KEYS.length > 31) throw new Error("pill bitmask supports 31 pills");
 const BIT = Object.fromEntries(KEYS.map((k, i) => [k, 1 << i])) as Record<PillKey, number>;
 
+const FLAG_PAIRS = (Object.keys(FLAGS) as FlagKey[]).map((k) => [FLAGS[k], BIT[k]] as const);
+
 const RULES: readonly ((r: BeatmapParsed) => number)[] = [
     (r) => BIT[`T${r.user_tier}` as const],
     (r) => BIT[MODS[r.mods]],
+    (r) => {
+        let m = 0;
+        for (const [flag, bit] of FLAG_PAIRS) if (r.flags & flag) m |= bit;
+        return m;
+    },
 ];
 
 const lists = new Map<number, readonly Pill[]>();

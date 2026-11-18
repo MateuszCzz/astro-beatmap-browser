@@ -9,6 +9,17 @@ export type ModId = keyof typeof MODS;
 export const TIERS = [1, 2, 3, 4] as const;
 export type Tier = (typeof TIERS)[number];
 
+export const FLAGS = {
+    HDF: 1 << 0, // most plays are with HD
+    SPACED: 1 << 1, // aim-heavy
+    DENSE: 1 << 2, // speed-heavy
+    UNI: 1 << 3, // scores in several tiers
+    RS: 1 << 4, // young and gains a lot
+    TFAV: 1 << 5, // old and popular
+    FPACK: 1 << 6, // many from set high score
+} as const;
+export type FlagKey = keyof typeof FLAGS;
+
 export const GENRES: Record<number, string> = {
     2: "Video Game",
     3: "Anime",
@@ -65,6 +76,7 @@ export type BeatmapRaw = {
     max_pp: number;
     median_pp_gain: number;
     score: number;
+    flags: number;
     tag_1: number | null;
     tag_2: number | null;
     tag_3: number | null;
