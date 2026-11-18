@@ -1,4 +1,4 @@
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive, shallowRef, watch } from "vue";
 import type { BeatmapParsed, ModId, Tier } from "../domain/beatmap";
 import { DEFAULT_TIER } from "../domain/manifest";
 
@@ -25,19 +25,39 @@ const defaults = (): FilterState => ({
 
 const state = reactive<FilterState>(defaults());
 
-const appliedSearch = ref("");
-let timer: ReturnType<typeof setTimeout> | undefined;
-watch(
-    () => state.search,
-    (v) => {
+function debounced<T>(
+    source: () => T,
+    ms: number,
+    instant: (v: T) => boolean = () => false,
+) {
+    const out = shallowRef<T>(source());
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const flush = () => {
         clearTimeout(timer);
-        if (!v) {
-            appliedSearch.value = "";
-            return;
-        }
-        timer = setTimeout(() => (appliedSearch.value = v), 150);
-    },
+        out.value = source();
+    };
+    watch(source, (v) => {
+        clearTimeout(timer);
+        if (instant(v)) flush();
+        else timer = setTimeout(flush, ms);
+    });
+    return [out, flush] as const;
+}
+
+// delay by .3 on type in text filter
+const [appliedSearch, flushSearch] = debounced(
+    () => state.search,
+    300,
+    (v) => !v,
 );
+
+// delay by .4 on slider drag
+const [applied, applySliders] = debounced(
+    () => ({ tagDepth: state.tagDepth }),
+    400,
+);
+
+const appliedDepth = computed(() => applied.value.tagDepth);
 
 const norm = (s: string) => s.normalize("NFKC").toLowerCase();
 const qCache = new WeakMap<BeatmapParsed, string>();
@@ -56,9 +76,10 @@ const matcher = computed(() => {
     const mod = state.mod;
     const genre = state.genre;
     const language = state.language;
-    const mapper = state.mapper
+    const mapper = state.mapper;
     const tags = state.tag;
-    const tagsDepth = state.tagDepth;
+    // read when needed
+    const tagDepth = tags.length ? appliedDepth.value : 0;
 
     return (r: BeatmapParsed): boolean => {
         if (mod.length && !mod.includes(r.mods)) return false;
@@ -66,7 +87,7 @@ const matcher = computed(() => {
         if (language.length && !language.includes(r.language_id)) return false;
         if (mapper.length && !mapper.includes(r.mapper_id)) return false;
         if (tags.length) {
-            const top = r.tags.filter((t) => t != null).slice(0, tagsDepth);
+            const top = r.tags.filter((t) => t != null).slice(0, tagDepth);
             if (!tags.every((t) => top.includes(t))) return false;
         }
         if (terms.length) {
@@ -79,9 +100,14 @@ const matcher = computed(() => {
 
 function reset() {
     const { tier, ...rest } = defaults();
-    clearTimeout(timer);
-    appliedSearch.value = "";
     Object.assign(state, rest);
+    flushSearch();
+    applySliders();
 }
 
-export const useFilter = () => ({ state, matcher, reset });
+export const useFilter = () => ({
+    state,
+    matcher,
+    reset,
+    applySliders,
+});

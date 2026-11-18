@@ -6,6 +6,7 @@ import {
     onMounted,
     ref,
     useId,
+    useSlots,
     watch,
 } from "vue";
 import { useDynamicList } from "../composables/useDynamicList";
@@ -23,7 +24,8 @@ const props = withDefaults(
 );
 
 const model = defineModel<T[]>({ required: true });
-const emit = defineEmits<{ open: [] }>();
+const emit = defineEmits<{ open: []; clear: [] }>();
+const slots = useSlots();
 
 const uid = useId();
 const listId = `${uid}-list`;
@@ -86,13 +88,14 @@ function toggle(id: T) {
 }
 function clear() {
     model.value = [];
+    emit("clear");
     closeList();
     trigger.value?.focus();
 }
 
 // clicks inside dont pull focus off the search
 function keepFocus(e: MouseEvent) {
-    if (e.target !== searchEl.value) e.preventDefault();
+    if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
 }
 
 function go(i: number) {
@@ -124,9 +127,19 @@ function onKeydown(e: KeyboardEvent) {
         closeList();
         trigger.value?.focus();
     } else if (e.key === "Tab") {
-        return closeList();
+        if (e.shiftKey || !slots.footer) closeList();
+        return;
     } else return;
     e.preventDefault();
+}
+
+// footer Esc and Tab
+function onFooterKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+        e.preventDefault();
+        closeList();
+        trigger.value?.focus();
+    } else if (e.key === "Tab" && !e.shiftKey) closeList();
 }
 
 watch(query, () => (active.value = 0));
@@ -257,6 +270,10 @@ onBeforeUnmount(() =>
                     {{ matches.length.toLocaleString() }}
                 </li>
             </ul>
+
+            <div v-if="slots.footer" class="footer" @keydown="onFooterKeydown">
+                <slot name="footer" />
+            </div>
         </div>
     </div>
 </template>
@@ -478,6 +495,12 @@ onBeforeUnmount(() =>
     color: var(--color-bg);
     background: var(--color-accent);
     border-color: var(--color-accent);
+}
+
+.footer {
+    margin-top: 0.25rem;
+    padding: 0.5rem 0.5rem 0.375rem;
+    border-top: 1px solid var(--_line);
 }
 
 .empty {

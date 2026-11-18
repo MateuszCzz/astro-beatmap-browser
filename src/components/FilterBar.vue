@@ -6,6 +6,7 @@ import { pillFor } from "../domain/pill";
 import { useFilter } from "../composables/useFilter";
 import { useLookup } from "../composables/useLookup";
 import MultiSelect from "./MultiSelect.vue";
+import SliderSelect from "./SliderSelect.vue";
 
 // get chips bg fg
 const TIER_BUTTONS = TIERS.map((t) => ({
@@ -20,7 +21,7 @@ const MOD_BUTTONS = Object.entries(MODS).map(([id, key]) => {
 
 defineProps<{ count?: number }>();
 
-const { state, reset } = useFilter();
+const { state, reset, applySliders } = useFilter();
 const { options, prefetch, name } = useLookup();
 
 const searchInput = ref<HTMLInputElement | null>(null);
@@ -125,28 +126,40 @@ const tagLabel = (id: number) => name("tags", id);
                 :options="options.tags.value"
                 :resolve-label="tagLabel"
                 label="Tags"
-                :multiple="true"
                 @open="prefetch('tags')"
-            />
+                @clear="state.tagDepth = 3"
+            >
+                <template #footer>
+                    <SliderSelect
+                        v-model="state.tagDepth"
+                        :min="1"
+                        :max="5"
+                        :neutral="null"
+                        label="Depth"
+                        ticks
+                        inline
+                        :show-value="false"
+                        hint="How many top tags to match"
+                        @change="applySliders"
+                    />
+                </template>
+            </MultiSelect>
             <MultiSelect
                 v-model="state.mapper"
                 :options="options.mappers.value"
                 :resolve-label="mapperLabel"
                 label="Mapper"
-                :multiple="true"
                 @open="prefetch('mappers')"
             />
             <MultiSelect
                 v-model="state.genre"
                 :options="genreOptions"
                 label="Genre"
-                :multiple="true"
             />
             <MultiSelect
                 v-model="state.language"
                 :options="languageOptions"
                 label="Language"
-                :multiple="true"
             />
         </div>
         <!-- results count -->
