@@ -1,4 +1,4 @@
-import { lengthFormat, oneDecimalFormat } from "./display";
+import { aimSpeedScale, lengthFormat, oneDecimalFormat } from "./display";
 
 export const MODS = {
     1: "NM",
@@ -121,38 +121,12 @@ export const RANGES = {
         get: (r) => r.ar / 100,
         format: oneDecimalFormat,
     },
-    bpm: { label: "BPM", min: 80, max: 400, step: 5, get: (r) => r.bpm },
-
-    length: {
-        label: "Length",
-        min: 15,
-        max: 900,
-        step: 5,
-        get: (r) => r.length,
-        format: lengthFormat,
-    },
     sr: {
         label: "SR",
         min: 3.5,
         max: 12,
         step: 0.1,
         get: (r) => r.sr / 100,
-        format: oneDecimalFormat,
-    },
-    od: {
-        label: "OD",
-        min: 0,
-        max: 11.1,
-        step: 0.1,
-        get: (r) => r.od / 100,
-        format: oneDecimalFormat,
-    },
-    cs: {
-        label: "CS",
-        min: 0,
-        max: 10,
-        step: 0.1,
-        get: (r) => r.cs / 100,
         format: oneDecimalFormat,
     },
     year: {
@@ -167,6 +141,61 @@ export const RANGES = {
         },
         format: (n) =>
             `${Math.floor(n / 4)}-${String((n % 4) * 3 + 1).padStart(2, "0")}`,
+    },
+    maxPP: {
+        label: "Max PP",
+        min: 100,
+        max: 1500,
+        step: 10,
+        get: (r) => r.max_pp,
+    },
+    od: {
+        label: "OD",
+        min: 0,
+        max: 11.1,
+        step: 0.1,
+        get: (r) => r.od / 100,
+        format: oneDecimalFormat,
+    },
+    length: {
+        label: "Length",
+        min: 15,
+        max: 900,
+        step: 5,
+        get: (r) => r.length,
+        format: lengthFormat,
+    },
+    top: {
+        label: "In Top 25 Rate",
+        min: 0,
+        max: 100,
+        step: 1,
+        get: (r) => Math.round(r.profile_top_25_ratio / 100),
+        format: (n) => `${n}%`,
+    },
+    netPP: {
+        label: "PP Net Gain",
+        min: 0,
+        max: 1500,
+        step: 5,
+        get: (r) => r.median_pp_gain,
+    },
+    cs: {
+        label: "CS",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        get: (r) => r.cs / 100,
+        format: oneDecimalFormat,
+    },
+    bpm: { label: "BPM", min: 80, max: 400, step: 5, get: (r) => r.bpm },
+    spacing: {
+        label: "Aim/Speed Ratio",
+        min: 0,
+        max: 100,
+        step: 1,
+        get: (r) => aimSpeedScale(r.aim_speed_ratio).spacing,
+        format: (n) => `${n}%`,
     },
     score: {
         label: "Score",
