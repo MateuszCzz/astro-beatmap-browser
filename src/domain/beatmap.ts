@@ -121,7 +121,7 @@ export const RANGES = {
         get: (r) => r.ar / 100,
         format: oneDecimalFormat,
     },
-    bpm: { label: "BPM", min: 80, max: 360, step: 5, get: (r) => r.bpm },
+    bpm: { label: "BPM", min: 80, max: 400, step: 5, get: (r) => r.bpm },
 
     length: {
         label: "Length",
@@ -133,8 +133,8 @@ export const RANGES = {
     },
     sr: {
         label: "SR",
-        min: 4,
-        max: 11,
+        min: 3.5,
+        max: 12,
         step: 0.1,
         get: (r) => r.sr / 100,
         format: oneDecimalFormat,
@@ -156,11 +156,17 @@ export const RANGES = {
         format: oneDecimalFormat,
     },
     year: {
-        label: "Ranked Year",
-        min: 2014,
-        max: 2026,
+        label: "Ranked Date",
+        min: 2009 * 4,
+        max: 2026 * 4 + 3,
         step: 1,
-        get: (r) => Math.floor(r.date / 10000),
+        get: (r) => {
+            const year = Math.floor(r.date / 10000);
+            const month = Math.floor(r.date / 100) % 100;
+            return year * 4 + Math.floor((month - 1) / 3);
+        },
+        format: (n) =>
+            `${Math.floor(n / 4)}-${String((n % 4) * 3 + 1).padStart(2, "0")}`,
     },
     score: {
         label: "Score",
