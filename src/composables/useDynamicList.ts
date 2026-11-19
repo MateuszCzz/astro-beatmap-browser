@@ -8,7 +8,7 @@ export function useDynamicList<T>(
     source: Readonly<Ref<readonly T[]>>,
     opts: { pageSize?: number; resetOn?: WatchSource[] } = {},
 ) {
-    const pageSize = opts.pageSize ?? 50;
+    const pageSize = opts.pageSize ?? 20;
     const limit = ref(pageSize);
     const sentinel = ref<HTMLElement | null>(null);
 
