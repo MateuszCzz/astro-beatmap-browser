@@ -1,6 +1,7 @@
 import { computed, reactive, shallowRef, watch } from "vue";
-import type { BeatmapParsed, ModId, Tier } from "../domain/beatmap";
+import type { BeatmapParsed, ModId, Tier, RangeKey } from "../domain/beatmap";
 import { DEFAULT_TIER } from "../domain/manifest";
+import { RANGES } from "../domain/beatmap";
 
 export interface FilterState {
     tier: Tier;
@@ -11,6 +12,7 @@ export interface FilterState {
     mapper: number[];
     tag: number[];
     tagDepth: number; // 1–5
+    range: Record<RangeKey, [number, number]>;
 }
 const defaults = (): FilterState => ({
     tier: DEFAULT_TIER,
@@ -21,6 +23,9 @@ const defaults = (): FilterState => ({
     mapper: [],
     tag: [],
     tagDepth: 3,
+    range: Object.fromEntries(
+        Object.entries(RANGES).map(([k, r]) => [k, [r.min, r.max]]),
+    ) as Record<RangeKey, [number, number]>,
 });
 
 const state = reactive<FilterState>(defaults());
@@ -51,13 +56,44 @@ const [appliedSearch, flushSearch] = debounced(
     (v) => !v,
 );
 
-// delay by .4 on slider drag
-const [applied, applySliders] = debounced(
-    () => ({ tagDepth: state.tagDepth }),
-    400,
+// delay by .3 on slider drag
+const [appliedSliders, flushSliders] = debounced(
+    () => ({
+        tagDepth: state.tagDepth,
+        bounds: activeBounds()
+    }),
+    300,
 );
 
-const appliedDepth = computed(() => applied.value.tagDepth);
+const appliedDepth = computed(() => appliedSliders.value.tagDepth);
+const appliedBounds = computed<Bound[]>((prev) =>
+    prev && sameBounds(prev, appliedSliders.value.bounds)
+        ? prev
+        : appliedSliders.value.bounds,
+);
+
+
+type Bound = { get: (r: BeatmapParsed) => number; lo: number; hi: number };
+
+function activeBounds(): Bound[] {
+    return (Object.keys(RANGES) as RangeKey[]).flatMap((k) => {
+        const { min, max, get } = RANGES[k];
+        const [a, b] = state.range[k];
+        const lo = a <= min ? -Infinity : a;
+        const hi = b >= max ? Infinity : b;
+        return lo === -Infinity && hi === Infinity ? [] : [{ get, lo, hi }];
+    });
+}
+
+function sameBounds(a: Bound[], b: Bound[]) {
+    return (
+        a.length === b.length &&
+        a.every(
+            (x, i) =>
+                x.get === b[i].get && x.lo === b[i].lo && x.hi === b[i].hi,
+        )
+    );
+}
 
 const norm = (s: string) => s.normalize("NFKC").toLowerCase();
 const qCache = new WeakMap<BeatmapParsed, string>();
@@ -80,6 +116,7 @@ const matcher = computed(() => {
     const tags = [...state.tag];
     // read when needed
     const tagDepth = tags.length ? appliedDepth.value : 0;
+    const bounds = appliedBounds.value;
 
     return (r: BeatmapParsed): boolean => {
         if (mod.length && !mod.includes(r.mods)) return false;
@@ -94,6 +131,10 @@ const matcher = computed(() => {
             const q = haystack(r);
             for (const t of terms) if (!q.includes(t)) return false;
         }
+        for (const { get, lo, hi } of bounds) {
+            const v = get(r);
+            if (v < lo || v > hi) return false;
+        }
         return true;
     };
 });
@@ -102,12 +143,12 @@ function reset() {
     const { tier, ...rest } = defaults();
     Object.assign(state, rest);
     flushSearch();
-    applySliders();
+    flushSliders();
 }
 
 export const useFilter = () => ({
     state,
     matcher,
     reset,
-    applySliders,
+    flushSliders,
 });

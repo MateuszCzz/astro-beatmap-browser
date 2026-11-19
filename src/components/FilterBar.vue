@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { GENRES, LANGUAGES, MODS, TIERS } from "../domain/beatmap";
-import type { ModId } from "../domain/beatmap";
+import { GENRES, LANGUAGES, MODS, TIERS, RANGES } from "../domain/beatmap";
+import type { ModId, RangeDef, RangeKey } from "../domain/beatmap";
 import { pillFor } from "../domain/pill";
 import { useFilter } from "../composables/useFilter";
 import { useLookup } from "../composables/useLookup";
@@ -21,7 +21,7 @@ const MOD_BUTTONS = Object.entries(MODS).map(([id, key]) => {
 
 defineProps<{ count?: number }>();
 
-const { state, reset, applySliders } = useFilter();
+const { state, reset, flushSliders } = useFilter();
 const { options, prefetch, name } = useLookup();
 
 const searchInput = ref<HTMLInputElement | null>(null);
@@ -46,6 +46,17 @@ const languageOptions = Object.entries(LANGUAGES).map(([id, label]) => ({
     id: Number(id),
     label,
 }));
+
+const rangeSliders = (Object.entries(RANGES) as [RangeKey, RangeDef][]).map(
+    ([key, { label, min, max, step, format }]) => ({
+        key,
+        label,
+        min,
+        max,
+        step,
+        format,
+    }),
+);
 
 const mapperLabel = (id: number) => name("mappers", id);
 const tagLabel = (id: number) => name("tags", id);
@@ -140,7 +151,7 @@ const tagLabel = (id: number) => name("tags", id);
                         inline
                         :show-value="false"
                         hint="How many top tags to match"
-                        @change="applySliders"
+                        @change="flushSliders"
                     />
                 </template>
             </MultiSelect>
@@ -162,6 +173,27 @@ const tagLabel = (id: number) => name("tags", id);
                 label="Language"
             />
         </div>
+        <!-- ranges -->
+        <div
+            class="ranges"
+            role="group"
+            aria-label="Ranges"
+            @change="flushSliders"
+        >
+            <SliderSelect
+                v-for="r in rangeSliders"
+                :key="r.key"
+                v-model="state.range[r.key]"
+                class="range"
+                :data-range="r.key"
+                :label="r.label"
+                :min="r.min"
+                :max="r.max"
+                :step="r.step"
+                :format="r.format"
+            />
+        </div>
+
         <!-- results count -->
         <p class="count" aria-live="polite">
             <template v-if="count !== undefined">
@@ -191,6 +223,7 @@ const tagLabel = (id: number) => name("tags", id);
     grid-template-areas:
         "search  tier    mods"
         "selects selects selects"
+        "ranges  ranges  ranges"
         "count   count   reset";
     align-items: center;
     gap: var(--space-sm) var(--space-lg);
@@ -207,6 +240,12 @@ const tagLabel = (id: number) => name("tags", id);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-sm) var(--space-md);
+}
+.ranges {
+    grid-area: ranges;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-sm) var(--space-lg);
 }
 .tier {
     grid-area: tier;

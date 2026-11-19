@@ -1,3 +1,5 @@
+import { lengthFormat, oneDecimalFormat } from "./display";
+
 export const MODS = {
     1: "NM",
     2: "HR",
@@ -100,3 +102,72 @@ export function parseBeatmap(r: BeatmapRaw): BeatmapParsed {
         tags: [tag_1, tag_2, tag_3, tag_4, tag_5].filter((t): t is number => !!t),
     };
 }
+
+export type RangeDef = {
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+    get: (r: BeatmapParsed) => number;
+    format?: (n: number) => string;
+};
+
+export const RANGES = {
+    ar: {
+        label: "AR",
+        min: 0,
+        max: 11,
+        step: 0.1,
+        get: (r) => r.ar / 100,
+        format: oneDecimalFormat,
+    },
+    bpm: { label: "BPM", min: 80, max: 360, step: 5, get: (r) => r.bpm },
+
+    length: {
+        label: "Length",
+        min: 15,
+        max: 900,
+        step: 5,
+        get: (r) => r.length,
+        format: lengthFormat,
+    },
+    sr: {
+        label: "SR",
+        min: 4,
+        max: 11,
+        step: 0.1,
+        get: (r) => r.sr / 100,
+        format: oneDecimalFormat,
+    },
+    od: {
+        label: "OD",
+        min: 0,
+        max: 11.1,
+        step: 0.1,
+        get: (r) => r.od / 100,
+        format: oneDecimalFormat,
+    },
+    cs: {
+        label: "CS",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        get: (r) => r.cs / 100,
+        format: oneDecimalFormat,
+    },
+    year: {
+        label: "Ranked Year",
+        min: 2014,
+        max: 2026,
+        step: 1,
+        get: (r) => Math.floor(r.date / 10000),
+    },
+    score: {
+        label: "Score",
+        min: 0,
+        max: 2000,
+        step: 10,
+        get: (r) => r.score,
+    },
+} satisfies Record<string, RangeDef>;
+export type RangeKey = keyof typeof RANGES;

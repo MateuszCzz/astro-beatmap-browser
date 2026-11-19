@@ -77,6 +77,7 @@ export const bigIntFormat = (score: number) => localFormater.format(score);
 export const lengthFormat = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;// sec to min:sec helper
 export const ratioFormat = (ratio: number) => `${Math.round(ratio / 10) / 10}%`;
 export const decimalFormat = (dec: number) => `${dec / 100}`;
+export const oneDecimalFormat = (n: number) => n.toFixed(1);
 const rtf = new Intl.RelativeTimeFormat("en-US", { numeric: "always" });
 const loadedAt = new Date();
 export const relativeDateFormat = (date: number, now = loadedAt) => {
