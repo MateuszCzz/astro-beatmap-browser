@@ -458,4 +458,12 @@ const tagLabel = (id: number) => name("tags", id);
         transition: none;
     }
 }
+/* tablet view */
+@container mapcontainer (560px < width <= 1100px) {
+
+}
+/* mobile view */
+@container mapcontainer (max-width: 560px) {
+
+}
 </style>

@@ -42,7 +42,7 @@ const resultCount = computed(() =>
 </script>
 
 <template>
-    <div class="farm">
+    <div class="map-content">
         <FilterBar :count="resultCount" />
         <!-- placeholder while loading -->
         <div v-if="loading" class="skeleton" aria-hidden="true">
@@ -65,7 +65,7 @@ const resultCount = computed(() =>
 </template>
 
 <style scoped>
-.farm {
+.map-content {
     --bg: var(--color-bg);
     --surface: var(--color-surface);
     --line: var(--color-border);
@@ -78,6 +78,7 @@ const resultCount = computed(() =>
     font-size: 0.8rem;
     line-height: 1.3;
     font-family: var(--font-sans);
+    container: mapcontainer / inline-size;
 }
 
 /* Loading placeholder */

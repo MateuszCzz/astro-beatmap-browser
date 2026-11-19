@@ -335,10 +335,9 @@ const hiddenTagsTip = computed(() => {
 </template>
 
 <style scoped>
-/* now whole row wrap */
+/* whole row wrap */
 .map-row {
     --line: var(--color-border);
-    container: row / inline-size;
     position: relative;
     isolation: isolate;
     line-height: 1.25;
@@ -741,7 +740,7 @@ a {
 }
 
 /* semi long view */
-@container row (max-width: 1200px) {
+@container mapcontainer (max-width: 1200px) {
     .rings {
         display: none;
     }
@@ -754,7 +753,7 @@ a {
 }
 
 /* tablet/mobile view */
-@container row (max-width: 1050px) {
+@container mapcontainer (max-width: 1100px) {
     .sfx,
     .bar {
         display: none;
@@ -762,7 +761,7 @@ a {
 }
 
 /* tablet view */
-@container row (535px < width <= 1050px) {
+@container mapcontainer (560px < width <= 1100px) {
     .card {
         contain-intrinsic-size: auto 214.5px;
     }
@@ -830,7 +829,7 @@ a {
 }
 
 /* mobile view */
-@container row (max-width: 535px) {
+@container mapcontainer (max-width: 560px) {
     /* placeholder height for off-screen rows */
     .card {
         contain-intrinsic-size: auto 283px;
