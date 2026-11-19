@@ -12,6 +12,7 @@ export interface FilterState {
     mapper: number[];
     tag: number[];
     tagDepth: number; // 1–5
+    flags: number;
     range: Record<RangeKey, [number, number]>;
 }
 const defaults = (): FilterState => ({
@@ -23,6 +24,7 @@ const defaults = (): FilterState => ({
     mapper: [],
     tag: [],
     tagDepth: 3,
+    flags: 0,
     range: Object.fromEntries(
         Object.entries(RANGES).map(([k, r]) => [k, [r.min, r.max]]),
     ) as Record<RangeKey, [number, number]>,
@@ -114,6 +116,7 @@ const matcher = computed(() => {
     const language = [...state.language];
     const mapper = [...state.mapper];
     const tags = [...state.tag];
+    const flags = state.flags;
     // read when needed
     const tagDepth = tags.length ? appliedDepth.value : 0;
     const bounds = appliedBounds.value;
@@ -135,6 +138,7 @@ const matcher = computed(() => {
             const v = get(r);
             if (v < lo || v > hi) return false;
         }
+        if (flags && (r.flags & flags) !== flags) return false;
         return true;
     };
 });

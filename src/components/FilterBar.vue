@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { GENRES, LANGUAGES, MODS, TIERS, RANGES } from "../domain/beatmap";
-import type { ModId, RangeDef, RangeKey } from "../domain/beatmap";
+import {
+    GENRES,
+    LANGUAGES,
+    MODS,
+    TIERS,
+    RANGES,
+    FLAGS,
+} from "../domain/beatmap";
+import type { ModId, RangeDef, RangeKey, FlagKey } from "../domain/beatmap";
 import { pillFor } from "../domain/pill";
 import { useFilter } from "../composables/useFilter";
 import { useLookup } from "../composables/useLookup";
@@ -17,6 +24,11 @@ const TIER_BUTTONS = TIERS.map((t) => ({
 const MOD_BUTTONS = Object.entries(MODS).map(([id, key]) => {
     const pill = pillFor(key);
     return { id: Number(id) as ModId, label: pill.label, style: pill.style };
+});
+
+const FLAG_BUTTONS = (Object.keys(FLAGS) as FlagKey[]).map((k) => {
+    const pill = pillFor(k);
+    return { bit: FLAGS[k], label: pill.label, style: pill.style };
 });
 
 defineProps<{ count?: number }>();
@@ -36,6 +48,10 @@ function toggleMod(id: ModId) {
     state.mod = state.mod.includes(id)
         ? state.mod.filter((m) => m !== id)
         : [...state.mod, id];
+}
+
+function toggleFlag(bit: number) {
+    state.flags ^= bit;
 }
 
 const genreOptions = Object.entries(GENRES).map(([id, label]) => ({
@@ -194,6 +210,22 @@ const tagLabel = (id: number) => name("tags", id);
             />
         </div>
 
+        <!-- flags -->
+        <div class="group flags" role="group" aria-label="Flags">
+            <span class="label" aria-hidden="true">Flags</span>
+            <button
+                v-for="f in FLAG_BUTTONS"
+                :key="f.bit"
+                type="button"
+                class="chip"
+                :style="f.style"
+                :aria-pressed="(state.flags & f.bit) !== 0"
+                @click="toggleFlag(f.bit)"
+            >
+                {{ f.label }}
+            </button>
+        </div>
+
         <!-- results count -->
         <p class="count" aria-live="polite">
             <template v-if="count !== undefined">
@@ -224,6 +256,7 @@ const tagLabel = (id: number) => name("tags", id);
         "search  tier    mods"
         "selects selects selects"
         "ranges  ranges  ranges"
+        "flags   flags   flags"
         "count   count   reset";
     align-items: center;
     gap: var(--space-sm) var(--space-lg);
@@ -252,6 +285,10 @@ const tagLabel = (id: number) => name("tags", id);
 }
 .mods {
     grid-area: mods;
+}
+.flags {
+    grid-area: flags;
+    flex-wrap: wrap;
 }
 
 .search {
