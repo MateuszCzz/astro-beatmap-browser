@@ -407,14 +407,21 @@ a {
     gap: 8px;
 }
 .pill {
-    padding: 3px 9px;
+    padding: 5px 9px;
     border-radius: 999px;
     background: var(--pill-bg);
     color: var(--pill-fg);
     box-shadow: 0 0 0 2px var(--pill-fg);
     font-size: 13px;
     font-weight: 700;
-    line-height: 18px;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+}
+
+@supports not (text-box: trim-both cap alphabetic) {
+    .pill {
+        padding: 2px 9px 4px;
+    }
 }
 
 /* buttons */
@@ -850,9 +857,13 @@ a {
         gap: 6px;
     }
     .pill {
-        padding: 2px 9px;
+        padding: 4px 9px;
         font-size: 12px;
-        line-height: 15px;
+    }
+    @supports not (text-box: trim-both cap alphabetic) {
+        .pill {
+            padding: 1px 9px 3px;
+        }
     }
 
     .play {
