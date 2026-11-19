@@ -73,11 +73,11 @@ const haystack = (r: BeatmapParsed) => {
 // Rebuilt only when a filter changes
 const matcher = computed(() => {
     const terms = norm(appliedSearch.value).split(/\s+/).filter(Boolean);
-    const mod = state.mod;
-    const genre = state.genre;
-    const language = state.language;
-    const mapper = state.mapper;
-    const tags = state.tag;
+    const mod = [...state.mod];
+    const genre = [...state.genre];
+    const language = [...state.language];
+    const mapper = [...state.mapper];
+    const tags = [...state.tag];
     // read when needed
     const tagDepth = tags.length ? appliedDepth.value : 0;
 
