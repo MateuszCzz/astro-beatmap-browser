@@ -150,9 +150,12 @@ function reset() {
     flushSliders();
 }
 
+const activeRangeCount = computed(() => activeBounds().length);
+
 export const useFilter = () => ({
     state,
     matcher,
+    activeRangeCount,
     reset,
     flushSliders,
 });

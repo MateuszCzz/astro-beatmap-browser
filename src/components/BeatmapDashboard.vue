@@ -43,7 +43,7 @@ const resultCount = computed(() =>
 
 <template>
     <div class="map-content">
-        <FilterBar :count="resultCount" />
+        <FilterBar :resultCount="resultCount" />
         <!-- placeholder while loading -->
         <div v-if="loading" class="skeleton" aria-hidden="true">
             <div v-for="n in 4" :key="n" class="skeleton-card" />

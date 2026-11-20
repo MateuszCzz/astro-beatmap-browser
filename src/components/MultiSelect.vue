@@ -284,7 +284,6 @@ onBeforeUnmount(() =>
     --chev: 0.875rem;
     --clear: 1.25rem;
     position: relative;
-    width: var(--ms-width, 14rem);
 }
 
 .control {
