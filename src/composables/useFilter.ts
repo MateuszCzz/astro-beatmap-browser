@@ -97,6 +97,39 @@ function sameBounds(a: Bound[], b: Bound[]) {
     );
 }
 
+// if selected tag fit in depth; all tags have to be on given map
+// if dont; all tags on maps have to match to selected
+// if map doesnt have enough tags for depth look at avilable 
+function tagMatcher(selectedTags: number[], depth: number) {
+    const selected = new Set(selectedTags);
+    const selectedCount = selected.size;
+    // selected dont fit in depth
+    const selectionExceedsDepth = selectedCount > depth;
+
+    return (mapTags: readonly (number | null | undefined)[]): boolean => {
+        let tagCounter = 0;
+        let found = 0; // matching tags to selected
+
+        for (let i = 0; i < mapTags.length && tagCounter < depth; i++) {
+            const tag = mapTags[i];
+            if (tag == null) continue;
+            tagCounter++;
+
+            if (selected.has(tag)) {
+                // done; every picked tag has shown up
+                if (!selectionExceedsDepth && ++found === selectedCount)
+                    return true;
+            } else if (selectionExceedsDepth) {
+                // depth>tags
+                return false;
+            }
+        }
+
+        // clear maps without tags
+        return selectionExceedsDepth && tagCounter > 0;
+    };
+}
+
 const norm = (s: string) => s.normalize("NFKC").toLowerCase();
 const qCache = new WeakMap<BeatmapParsed, string>();
 const haystack = (r: BeatmapParsed) => {
@@ -117,8 +150,10 @@ const matcher = computed(() => {
     const mapper = [...state.mapper];
     const tags = [...state.tag];
     const flags = state.flags;
-    // read when needed
-    const tagDepth = tags.length ? appliedDepth.value : 0;
+    // read depth only when tags are selected
+    const tagFilter = tags.length
+        ? tagMatcher(tags, appliedDepth.value)
+        : null;
     const bounds = appliedBounds.value;
 
     return (r: BeatmapParsed): boolean => {
@@ -126,10 +161,7 @@ const matcher = computed(() => {
         if (genre.length && !genre.includes(r.genre_id)) return false;
         if (language.length && !language.includes(r.language_id)) return false;
         if (mapper.length && !mapper.includes(r.mapper_id)) return false;
-        if (tags.length) {
-            const top = r.tags.filter((t) => t != null).slice(0, tagDepth);
-            if (!tags.every((t) => top.includes(t))) return false;
-        }
+        if (tagFilter && !tagFilter(r.tags)) return false;
         if (terms.length) {
             const q = haystack(r);
             for (const t of terms) if (!q.includes(t)) return false;
