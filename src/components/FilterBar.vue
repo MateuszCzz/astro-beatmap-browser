@@ -13,7 +13,8 @@ import { pillFor } from "../domain/pill";
 import { useFilter } from "../composables/useFilter";
 import { useLookup } from "../composables/useLookup";
 import MultiSelect from "./MultiSelect.vue";
-import SliderSelect from "./SliderSelect.vue";
+import RangeSlider from "./RangeSlider.vue";
+import StepSlider from "./StepSlider.vue";
 
 defineProps<{ resultCount?: number }>();
 
@@ -149,17 +150,13 @@ const tagLabel = (id: number) => name("tags", id);
                     @clear="state.tagDepth = 3"
                 >
                     <template #footer>
-                        <SliderSelect
+                        <StepSlider
                             v-model="state.tagDepth"
+                            label="Depth"
                             :min="1"
                             :max="5"
-                            :neutral="null"
-                            label="Depth"
-                            ticks
-                            inline
-                            :show-value="false"
-                            hint="How many top tags to match"
-                            @change="flushSliders"
+                            title="How many top tags to match"
+                            @commit="flushSliders"
                         />
                     </template>
                 </MultiSelect>
@@ -217,9 +214,8 @@ const tagLabel = (id: number) => name("tags", id);
                 class="ranges"
                 role="group"
                 aria-label="More filters"
-                @change="flushSliders"
             >
-                <SliderSelect
+                <RangeSlider
                     v-for="range in rangeSliders"
                     :key="range.key"
                     v-model="state.range[range.key]"
@@ -228,6 +224,7 @@ const tagLabel = (id: number) => name("tags", id);
                     :max="range.max"
                     :step="range.step"
                     :format="range.format"
+                    @commit="flushSliders"
                 />
             </div>
         </div>
@@ -471,6 +468,7 @@ const tagLabel = (id: number) => name("tags", id);
     background: var(--pill-bg);
     border-color: transparent;
     box-shadow: 0 0 0 2px var(--pill-fg);
+    background-origin: border-box;
 }
 
 /* flags */
