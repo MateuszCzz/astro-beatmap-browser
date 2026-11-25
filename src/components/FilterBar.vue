@@ -126,17 +126,19 @@ const tagLabel = (id: number) => name("tags", id);
             <!-- mods -->
             <div class="group mods" role="group" aria-label="Mods">
                 <span class="group-label" aria-hidden="true">Mods</span>
-                <button
-                    v-for="mod in MOD_BUTTONS"
-                    :key="mod.id"
-                    type="button"
-                    class="chip"
-                    :style="mod.style"
-                    :aria-pressed="state.mod.includes(mod.id)"
-                    @click="toggleMod(mod.id)"
-                >
-                    {{ mod.label }}
-                </button>
+                <div class="chips">
+                    <button
+                        v-for="mod in MOD_BUTTONS"
+                        :key="mod.id"
+                        type="button"
+                        class="chip"
+                        :style="mod.style"
+                        :aria-pressed="state.mod.includes(mod.id)"
+                        @click="toggleMod(mod.id)"
+                    >
+                        {{ mod.label }}
+                    </button>
+                </div>
             </div>
 
             <!-- multiselects -->
@@ -269,6 +271,7 @@ const tagLabel = (id: number) => name("tags", id);
     --chip-h: calc(
         var(--control-h) - 2 * (var(--segment-pad) + var(--segment-border))
     );
+    --chip-sm-h: 1.5rem;
 
     display: flex;
     flex-direction: column;
@@ -375,6 +378,7 @@ const tagLabel = (id: number) => name("tags", id);
 }
 
 .search-clear {
+    position: relative;
     flex: none;
     display: grid;
     place-items: center;
@@ -387,6 +391,11 @@ const tagLabel = (id: number) => name("tags", id);
     border-radius: 50%;
     cursor: pointer;
 }
+.search-clear::before {
+    content: "";
+    position: absolute;
+    inset: -0.375rem;
+}
 .search-clear svg {
     width: 0.75rem;
     height: 0.75rem;
@@ -397,6 +406,11 @@ const tagLabel = (id: number) => name("tags", id);
 }
 
 .group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.chips {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -473,7 +487,7 @@ const tagLabel = (id: number) => name("tags", id);
 
 /* flags */
 .chip-sm {
-    height: 1.5rem;
+    height: var(--chip-sm-h);
     padding: 0 0.625rem;
     font-size: 0.75rem;
 }
@@ -558,10 +572,133 @@ const tagLabel = (id: number) => name("tags", id);
         transition: none;
     }
 }
-/* tablet view */
-@container mapcontainer (560px < width <= 1100px) {
+
+@media (pointer: coarse) {
+    .filters {
+        --control-h: 2.75rem;
+        --chip-sm-h: 2rem;
+    }
+    .reset {
+        min-height: var(--control-h);
+        padding-inline: 0.75rem;
+        margin-right: -0.75rem;
+    }
 }
+
+@container mapcontainer (620px < width <= 1100px) {
+    .filters {
+        --col-gap: 0.75rem;
+        --inset: calc(0.75rem + 1px);
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0 var(--col-gap);
+        padding: 0.375rem 0.75rem 0.325rem;
+    }
+
+    .controls > :not(.selects),
+    .selects > * {
+        margin-block: 0.375rem;
+        box-sizing: border-box;
+    }
+
+    .controls::before,
+    .controls::after {
+        content: "";
+        flex: 0 0 100%;
+        height: 0;
+    }
+    .controls::before {
+        order: 3;
+    }
+    .controls::after {
+        order: 6;
+    }
+
+    .selects {
+        display: contents;
+    }
+
+    .search {
+        order: 1;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .actions {
+        order: 2;
+        flex: none;
+    }
+
+    .tier,
+    .mods {
+        flex: 1 1 0;
+        min-width: 0;
+        gap: 0.5rem;
+        padding-left: var(--inset);
+    }
+    .tier {
+        order: 4;
+    }
+    .mods {
+        order: 5;
+    }
+    .tier .group-label,
+    .mods .group-label {
+        flex: none;
+    }
+    .tier .segment,
+    .mods .chips {
+        flex: 1 1 0;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .tier .chip,
+    .mods .chip {
+        flex: 1 1 0;
+    }
+    .mods .chips {
+        gap: 0.5rem;
+    }
+    .mods .chip {
+        padding-inline: 0.25rem;
+    }
+
+    .selects > :not(.actions) {
+        order: 7;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .selects > :nth-last-child(2) :deep(.panel) {
+        left: auto;
+        right: 0;
+    }
+
+    .ranges {
+        --range-cols: 3;
+        --range-rows: 4;
+        order: 8;
+        flex: 1 1 100%;
+        grid-template-columns: repeat(var(--range-cols), minmax(0, 1fr));
+        grid-template-rows: repeat(var(--range-rows), auto);
+        grid-auto-flow: column;
+        gap: 1rem 1.5rem;
+        padding-inline: 0;
+    }
+}
+
+/* narrow tablet ranges 2 columns instead of 3 */
+@container mapcontainer (620px < width <= 800px) {
+    .ranges {
+        --range-cols: 2;
+        --range-rows: 6;
+    }
+}
+
 /* mobile view */
-@container mapcontainer (max-width: 560px) {
+@container mapcontainer (max-width: 620px) {
 }
 </style>

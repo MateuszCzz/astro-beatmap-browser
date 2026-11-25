@@ -5,6 +5,7 @@ import {
     onBeforeUnmount,
     onMounted,
     ref,
+    shallowRef,
     useId,
     useSlots,
     watch,
@@ -15,12 +16,9 @@ const props = withDefaults(
     defineProps<{
         options: { id: T; label: string }[];
         label?: string;
-        placeholder?: string;
-        maxTags?: number;
-        pageSize?: number;
         resolveLabel?: (id: T) => string;
     }>(),
-    { label: "", placeholder: "Any", maxTags: 2, pageSize: 50 },
+    { label: "" },
 );
 
 const model = defineModel<T[]>({ required: true });
@@ -38,6 +36,7 @@ const list = ref<HTMLElement>();
 const open = ref(false);
 const active = ref(0);
 const query = ref("");
+const pinned = shallowRef(new Set<T>());
 
 const norm = (s: string) => s.normalize("NFKC").toLowerCase();
 
@@ -52,27 +51,43 @@ const selected = computed(() =>
         label: byId.value.get(id) ?? props.resolveLabel?.(id) ?? "",
     })),
 );
-const shown = computed(() => selected.value.slice(0, props.maxTags));
+
+const MAX_CHIPS = 2;
+const shown = computed(() => selected.value.slice(0, MAX_CHIPS));
 
 const index = computed(() =>
     props.options.map((o) => ({ o, key: norm(o.label) })),
 );
 const matches = computed(() => {
     const terms = norm(query.value).split(/\s+/).filter(Boolean);
-    if (!terms.length) return props.options;
+    if (!terms.length) {
+        if (!pinned.value.size) return props.options;
+        const first: typeof props.options = [];
+        const rest: typeof props.options = [];
+        for (const o of props.options)
+            (pinned.value.has(o.id) ? first : rest).push(o);
+        return first.length ? [...first, ...rest] : props.options;
+    }
     return index.value
         .filter(({ key }) => terms.every((t) => key.includes(t)))
         .map(({ o }) => o);
 });
 
+const status = computed(() => {
+    if (!props.options.length) return "No options";
+    if (!matches.value.length) return "No matches";
+    return `${matches.value.length.toLocaleString()} options`;
+});
+
 // render one group of matches; sentinel row at the bottom loads next
 const { visible, hasMore, sentinel } = useDynamicList(matches, {
-    pageSize: props.pageSize,
+    pageSize: 50,
     resetOn: [query, open],
 });
 
 function openList() {
     query.value = "";
+    pinned.value = new Set(model.value);
     active.value = 0;
     open.value = true;
     emit("open");
@@ -163,23 +178,31 @@ onBeforeUnmount(() =>
                 class="trigger"
                 aria-haspopup="listbox"
                 :aria-expanded="open"
-                :aria-controls="listId"
+                :aria-controls="open ? listId : undefined"
                 @click="open ? closeList() : openList()"
                 @keydown="onKeydown"
             >
-                <span v-if="label && !selected.length" class="label">{{
-                    label
-                }}</span>
                 <span class="value">
-                    <span v-if="!selected.length" class="placeholder">{{
-                        placeholder
-                    }}</span>
+                    <template v-if="!selected.length">
+                        <span v-if="label" class="label">{{ label }}</span>
+                        <span class="placeholder">Any</span>
+                    </template>
                     <template v-else>
                         <span v-for="s in shown" :key="s.id" class="tag">{{
                             s.label
                         }}</span>
-                        <span v-if="selected.length > shown.length" class="more"
+                        <span
+                            v-if="selected.length > shown.length"
+                            class="more more-wide"
                             >+{{ selected.length - shown.length }}</span
+                        >
+                        <span
+                            v-if="selected.length > 1"
+                            class="more more-narrow"
+                            >+{{ selected.length - 1 }}</span
+                        >
+                        <span class="more more-all"
+                            >+{{ selected.length }}</span
                         >
                     </template>
                 </span>
@@ -220,6 +243,7 @@ onBeforeUnmount(() =>
                 spellcheck="false"
                 @keydown="onKeydown"
             />
+            <div class="sr-only" role="status">{{ status }}</div>
 
             <ul
                 :id="listId"
@@ -248,15 +272,15 @@ onBeforeUnmount(() =>
                             <path d="M5 12.5l4.5 4.5L19 7.5" />
                         </svg>
                     </span>
-                    {{ o.label }}
+                    <span class="opt-label">{{ o.label }}</span>
                 </li>
-                <li v-if="!options.length" class="empty" role="presentation">
+                <li v-if="!options.length" class="empty" aria-hidden="true">
                     No options
                 </li>
                 <li
                     v-else-if="!matches.length"
                     class="empty"
-                    role="presentation"
+                    aria-hidden="true"
                 >
                     No matches
                 </li>
@@ -264,7 +288,7 @@ onBeforeUnmount(() =>
                     v-else-if="hasMore"
                     ref="sentinel"
                     class="empty"
-                    role="presentation"
+                    aria-hidden="true"
                 >
                     Showing {{ visible.length.toLocaleString() }} of
                     {{ matches.length.toLocaleString() }}
@@ -287,6 +311,7 @@ onBeforeUnmount(() =>
 }
 
 .control {
+    container-type: inline-size;
     position: relative;
     display: flex;
     height: var(--control-h, 2.25rem);
@@ -324,7 +349,7 @@ onBeforeUnmount(() =>
     outline: none;
 }
 .label {
-    flex: none;
+    margin-right: 0.5rem;
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -342,10 +367,16 @@ onBeforeUnmount(() =>
 .ms.has .value {
     margin-right: calc(var(--clear) + 0.125rem);
 }
+
+.ms:not(.has) .value {
+    display: block;
+    text-overflow: ellipsis; /* Chromium/Safari */
+    text-overflow: ".."; /* Firefox */
+    white-space: nowrap;
+}
 .placeholder {
     color: var(--gray);
 }
-.placeholder,
 .tag {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -369,6 +400,31 @@ onBeforeUnmount(() =>
     color: var(--color-bg);
     background: var(--color-accent);
     border-radius: 999px;
+}
+
+/* fold chips per width */
+.more-narrow,
+.more-all {
+    display: none;
+}
+
+@container (width < 12rem) {
+    .tag:nth-child(2),
+    .more-wide {
+        display: none;
+    }
+    .more-narrow {
+        display: block;
+    }
+}
+@container (width < 9rem) {
+    .tag,
+    .more-narrow {
+        display: none;
+    }
+    .more-all {
+        display: block;
+    }
 }
 
 .ic {
@@ -404,6 +460,12 @@ onBeforeUnmount(() =>
     cursor: pointer;
     transform: translateY(-50%);
 }
+
+.clear::before {
+    content: "";
+    position: absolute;
+    inset: -0.375rem;
+}
 .clear .ic {
     width: 0.75rem;
     height: 0.75rem;
@@ -418,8 +480,7 @@ onBeforeUnmount(() =>
     top: calc(100% + 0.375rem);
     left: 0;
     z-index: 30;
-    width: max-content;
-    min-width: 100%;
+    width: max(100%, 16rem);
     max-width: min(24rem, 90vw);
     padding: 0.25rem;
     background: var(--color-surface);
@@ -445,6 +506,16 @@ onBeforeUnmount(() =>
 }
 .q::placeholder {
     color: var(--gray);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
 }
 
 .list {
@@ -473,6 +544,14 @@ onBeforeUnmount(() =>
 }
 .opt.sel.active {
     background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.opt-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis; /* Chromium/Safari */
+    text-overflow: ".."; /* Firefox */
 }
 
 .mark {

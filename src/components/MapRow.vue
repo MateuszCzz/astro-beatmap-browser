@@ -761,7 +761,7 @@ a {
 }
 
 /* tablet view */
-@container mapcontainer (560px < width <= 1100px) {
+@container mapcontainer (620px < width <= 1100px) {
     .card {
         contain-intrinsic-size: auto 214.5px;
     }
@@ -829,7 +829,7 @@ a {
 }
 
 /* mobile view */
-@container mapcontainer (max-width: 560px) {
+@container mapcontainer (max-width: 620px) {
     /* placeholder height for off-screen rows */
     .card {
         contain-intrinsic-size: auto 283px;
