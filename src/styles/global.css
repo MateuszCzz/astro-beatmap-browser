@@ -1,5 +1,5 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: dark;
 
     /* rings tokens  */
     --gray: #a79bc0;
@@ -16,17 +16,6 @@
     --color-text: #f3effa;
     --color-border: #3a3250;
     --color-accent: var(--gold);
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        /* light */
-        --color-bg: #faf8fc;
-        --color-surface: #ffffff;
-        --color-text: var(--black);
-        --color-border: #e7e1f0;
-        --color-accent: var(--red);
-    }
 }
 
 :root {
