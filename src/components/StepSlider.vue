@@ -56,7 +56,7 @@ function pick(v: number) {
 
 <style scoped>
 .step {
-    --thumb: 0.875rem;
+    --thumb: 0.75rem;
     --track: 0.25rem;
 
     display: grid;
@@ -170,7 +170,7 @@ input:focus-visible::-moz-range-thumb {
 
 @media (pointer: coarse) {
     .step {
-        --thumb: 1.5rem;
+        --thumb: 1.25rem;
     }
 }
 </style>

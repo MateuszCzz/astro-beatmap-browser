@@ -122,7 +122,7 @@ function thumbLabel(i: number) {
 
 <style scoped>
 .slider {
-    --thumb: 0.875rem;
+    --thumb: 0.75rem;
     --track: 0.25rem;
     --edge: var(--line, var(--color-border));
     --rail: color-mix(in srgb, var(--color-text) 12%, transparent);
@@ -252,7 +252,7 @@ input:focus-visible::-moz-range-thumb {
 
 @media (pointer: coarse) {
     .slider {
-        --thumb: 1.5rem;
+        --thumb: 1.25rem;
     }
 }
 </style>
