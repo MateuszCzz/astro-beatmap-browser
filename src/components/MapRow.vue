@@ -88,7 +88,7 @@ const hiddenTagsTip = computed(() => {
                 v-for="p in pills"
                 :key="p.key"
                 v-bind="tip(p.key)"
-                :style="p.style"
+                :style="[p.style, { '--len': p.label.length }]"
                 class="pill"
                 >{{ p.label }}</span
             >
@@ -854,10 +854,15 @@ a {
         left: -3px;
         top: -10px;
         gap: 6px;
+        width: 100%;
     }
     .pill {
-        padding: 4px 9px;
-        font-size: 12px;
+        flex: 0 1 auto;
+        flex-shrink: clamp(0, calc(var(--len, 3) - 2), 1);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-overflow: "..";
     }
     @supports not (text-box: trim-both cap alphabetic) {
         .pill {
