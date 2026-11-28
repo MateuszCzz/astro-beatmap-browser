@@ -33,6 +33,7 @@ const root = ref<HTMLElement>();
 const trigger = ref<HTMLButtonElement>();
 const searchEl = ref<HTMLInputElement>();
 const list = ref<HTMLElement>();
+const panel = ref<HTMLElement>();
 const open = ref(false);
 const active = ref(0);
 const query = ref("");
@@ -85,13 +86,30 @@ const { visible, hasMore, sentinel } = useDynamicList(matches, {
     resetOn: [query, open],
 });
 
+const coarse = () => window.matchMedia("(pointer: coarse)").matches;
+
 function openList() {
     query.value = "";
     pinned.value = new Set(model.value);
     active.value = 0;
     open.value = true;
     emit("open");
-    nextTick(() => searchEl.value?.focus({ preventScroll: true }));
+    nextTick(() => {
+        if (!coarse()) searchEl.value?.focus({ preventScroll: true });
+        reveal();
+    });
+}
+
+// scroll the list into view
+function reveal() {
+    const p = panel.value;
+    if (!root.value || !p || getComputedStyle(p).position !== "static") return;
+    root.value.scrollIntoView({
+        block: "nearest",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+    });
 }
 function closeList() {
     open.value = false;
@@ -159,6 +177,11 @@ function onFooterKeydown(e: KeyboardEvent) {
 
 watch(query, () => (active.value = 0));
 
+watch(
+    () => props.options.length,
+    () => open.value && nextTick(reveal),
+);
+
 // click outside closes
 function onPointerDown(e: PointerEvent) {
     if (open.value && !root.value?.contains(e.target as Node)) closeList();
@@ -224,7 +247,7 @@ onBeforeUnmount(() =>
             </button>
         </div>
 
-        <div v-if="open" class="panel" @mousedown="keepFocus">
+        <div v-if="open" ref="panel" class="panel" @mousedown="keepFocus">
             <input
                 ref="searchEl"
                 v-model="query"
@@ -308,6 +331,7 @@ onBeforeUnmount(() =>
     --chev: 0.875rem;
     --clear: 1.25rem;
     position: relative;
+    scroll-margin-block: var(--reveal-top, 0px) var(--reveal-bottom, 0px);
 }
 
 .control {
