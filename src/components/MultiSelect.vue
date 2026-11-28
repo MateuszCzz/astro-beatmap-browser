@@ -183,13 +183,25 @@ watch(
 );
 
 // click outside closes
+let pressedInside = false;
+const inside = (e: Event) =>
+    !!root.value && e.composedPath().includes(root.value);
 function onPointerDown(e: PointerEvent) {
-    if (open.value && !root.value?.contains(e.target as Node)) closeList();
+    pressedInside = inside(e);
 }
-onMounted(() => document.addEventListener("pointerdown", onPointerDown));
-onBeforeUnmount(() =>
-    document.removeEventListener("pointerdown", onPointerDown),
-);
+function onClick(e: MouseEvent) {
+    const away = !pressedInside && !inside(e);
+    pressedInside = false;
+    if (open.value && away) closeList();
+}
+onMounted(() => {
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("click", onClick);
+});
+onBeforeUnmount(() => {
+    document.removeEventListener("pointerdown", onPointerDown, true);
+    document.removeEventListener("click", onClick);
+});
 </script>
 
 <template>
